@@ -190,6 +190,9 @@ class HuslConverter():
         S = triple[1]
         L = triple[2]
 
+        if L > 99.9999999: return [100, 0, H]
+        if L < 0.00000001: return [0, 0, H]
+
         max = self.maxChroma(L, H)
         C = max / 100.0 * S
 
@@ -200,6 +203,9 @@ class HuslConverter():
         C = triple[1]
         H = triple[2]
 
+        if L > 99.9999999: return [H, 0, 100]
+        if L < 0.00000001: return [H, 0, 0]
+        
         max = self.maxChroma(L, H)
         S = C / max * 100
 

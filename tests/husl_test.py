@@ -18,7 +18,6 @@ class TestHusl(unittest.TestCase):
         for h in range(37):
             for s in range(21):
                 for l in range(21):
-                    print h, s, l
                     test = conv.HUSLtoHex(h * 10.0, s * 5.0, l * 5.0)
                     correct = self.snapshot['husl'][h][s][l]
                     self.assertEqual(test, correct)
