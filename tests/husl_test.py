@@ -2,7 +2,7 @@ import unittest
 import json
 import os.path
 
-from husl import HuslConverter
+import husl
 
 class TestHusl(unittest.TestCase):
 
@@ -14,13 +14,17 @@ class TestHusl(unittest.TestCase):
         json_data.close()
 
     def test_snapshot(self):
-        conv = HuslConverter()
         for h in range(37):
             for s in range(21):
                 for l in range(21):
-                    test = conv.HUSLtoHex(h * 10.0, s * 5.0, l * 5.0)
+                    test = husl.husl_to_hex(h * 10.0, s * 5.0, l * 5.0)
                     correct = self.snapshot['husl'][h][s][l]
                     self.assertEqual(test, correct)
+
+                    #H, S, L = husl.hex_to_husl(test)
+                    #self.assertEqual(round(H / 10.0), h)
+                    #self.assertEqual(round(S / 5.0), s)
+                    #self.assertEqual(round(L / 5.0), l)
 
 if __name__ == '__main__':
     unittest.main()
