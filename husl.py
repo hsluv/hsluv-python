@@ -29,7 +29,7 @@ def husl_to_rgb(h, s, l):
     return XYZ_RGB(LUV_XYZ(LCH_LUV(HUSL_LCH([h, s, l]))))
 
 def husl_to_hex(h, s, l):
-    return '#%02x%02x%02x' % tuple(rgbPrepare(husl_to_rgb(h, s, l)))
+    return '#%02x%02x%02x' % tuple(rgb_prepare(husl_to_rgb(h, s, l)))
 
 def rgb_to_husl(r, g, b):
     return LCH_HUSL(LUV_LCH(XYZ_LUV(RGB_XYZ([r, g, b]))))
@@ -65,7 +65,7 @@ def maxChroma(L, H):
                 result = C
     return result
 
-def dotProduct(a, b):
+def dot_product(a, b):
     return sum(map(operator.mul, a, b))
 
 def f(t):
@@ -80,13 +80,13 @@ def f_inv(t):
     else:
         return (116 * t - 16) / lab_k
 
-def fromLinear(c):
+def from_linear(c):
     if c <= 0.0031308:
         return 12.92 * c
     else:
         return (1.055 * math.pow(c, 1 / 2.4) - 0.055)
 
-def toLinear(c):
+def to_linear(c):
     a = 0.055
 
     if c > 0.04045:
@@ -94,27 +94,28 @@ def toLinear(c):
     else:
         return (c / 12.92)
 
-def rgbPrepare(triple):
-    for i in range(0, 3):
-        triple[i] = round(triple[i], 3)
+def rgb_prepare(triple):
+    ret = []
+    for ch in triple:
+        ch = round(ch, 3)
 
-        if triple[i] < 0 or triple[i] > 1:
-            if triple[i] < 0:
-                triple[i] = 0
-            else:
-                triple[i] = 1
+        if ch < -0.0001 or ch > 1.0001:
+            raise Exception("Illegal RGB value %f" % ch)
+            
+        if ch < 0: ch = 0
+        if ch > 1: ch = 1
 
-        triple[i] = round(triple[i]*255, 0)
+        ret.append(round(ch * 255, 0))
 
-    return triple
+    return ret
 
 def XYZ_RGB(triple):
-    xyz = map(lambda row: dotProduct(row, triple), m)
-    return map(fromLinear, xyz)
+    xyz = map(lambda row: dot_product(row, triple), m)
+    return map(from_linear, xyz)
 
 def RGB_XYZ(triple):
-    rgbl = map(toLinear, triple)
-    return map(lambda row: dotProduct(row, rgbl), m_inv)
+    rgbl = map(to_linear, triple)
+    return map(lambda row: dot_product(row, rgbl), m_inv)
 
 def XYZ_LUV(triple):
     X, Y, Z = triple
