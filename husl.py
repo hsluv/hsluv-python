@@ -1,6 +1,5 @@
 import operator
 import math
-from colormath.color_objects import RGBColor
 
 __version__ = "0.1"
 
@@ -32,8 +31,7 @@ class HuslConverter():
         return self.XYZ_RGB(self.LUV_XYZ(self.LCH_LUV(self.HUSL_LCH([h, s, l]))))
 
     def HUSLtoHex(self, h, s, l):
-        r, g, b = self.rgbPrepare(self.HUSLtoRGB(h, s, l))
-        return RGBColor(rgb_r=r, rgb_g=g, rgb_b=b).get_rgb_hex()
+        return '#%02x%02x%02x' % tuple(self.rgbPrepare(self.HUSLtoRGB(h, s, l)))
 
     #Pass in RGB values ranging from 0 to 1 and get back HUSL values.
     #H ranges from 0 to 360, S and L from 0 to 100.
