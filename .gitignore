@@ -1,5 +1,5 @@
-/gh-pages
-/node_modules
+*.pyc
+*.pyo
 /test/snapshot-current.png
 /test/snapshot-current.json
 
