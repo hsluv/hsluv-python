@@ -1,22 +1,22 @@
 import operator
 import math
-from colormath.color_objects import RGBColor
+from colormath.color_objects import RGBColor, LCHuvColor
 
 __version__ = "0.1"
 
 class HuslConverter():
 
     m = [
-            [3.2406, -1.5372, -0.4986],
-            [-0.9689, 1.8758, 0.0415],
-            [0.0557, -0.2040, 1.0570]
-        ]
+        [3.2406, -1.5372, -0.4986],
+        [-0.9689, 1.8758, 0.0415],
+        [0.0557, -0.2040, 1.0570]
+    ]
 
     m_inv = [
-                [0.4124, 0.3576, 0.1805],
-                [0.2126, 0.7152, 0.0722],
-                [0.0193, 0.1192, 0.9505]
-            ]
+        [0.4124, 0.3576, 0.1805],
+        [0.2126, 0.7152, 0.0722],
+        [0.0193, 0.1192, 0.9505]
+    ]
     refX = 0.95047
     refY = 1.00000
     refZ = 1.08883
@@ -29,10 +29,13 @@ class HuslConverter():
     #Pass in HUSL values and get back RGB values, H ranges from 0 to 360, S and L from 0 to 100.
     #RGB values will range from 0 to 1.
     def HUSLtoRGB(self, h, s, l):
-        return self.XYZ_RGB(self.LUV_XYZ(self.LCH_LUV(self.HUSL_LCH([h, s, l]))))
+        l, c, h = self.HUSL_LCH([h, s, l])
+        lch = LCHuvColor(lch_l=l, lch_c=c, lch_h=h)
+        rgb = lch.convert_to('rgb', target_rgb='srgb', debug=True)
+        return [rgb.rgb_r, rgb.rgb_g, rgb.rgb_b]
 
     def HUSLtoHex(self, h, s, l):
-        r, g, b = self.rgbPrepare(self.HUSLtoRGB(h, s, l))
+        r, g, b = self.HUSLtoRGB(h, s, l)
         return RGBColor(rgb_r=r, rgb_g=g, rgb_b=b).get_rgb_hex()
 
     #Pass in RGB values ranging from 0 to 1 and get back HUSL values.
@@ -190,8 +193,8 @@ class HuslConverter():
         S = triple[1]
         L = triple[2]
 
-        if L > 99.9999999: return [100, 0, H]
-        if L < 0.00000001: return [0, 0, H]
+        if L > 99.999999999: return [100, 0, H]
+        if L < 0.0000000001: return [0, 0, H]
 
         max = self.maxChroma(L, H)
         C = max / 100.0 * S
@@ -203,9 +206,9 @@ class HuslConverter():
         C = triple[1]
         H = triple[2]
 
-        if L > 99.9999999: return [H, 0, 100]
-        if L < 0.00000001: return [H, 0, 0]
-        
+        if L > 99.999999999: return [H, 0, 100]
+        if L < 0.0000000001: return [H, 0, 0]
+
         max = self.maxChroma(L, H)
         S = C / max * 100
 
