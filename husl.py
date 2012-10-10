@@ -1,6 +1,8 @@
 import operator
 import math
 
+__version__ = "0.1"
+
 class HuslConverter():
 
     m = [

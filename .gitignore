@@ -2,4 +2,5 @@
 *.pyo
 /test/snapshot-current.png
 /test/snapshot-current.json
+/husl.egg-info
 
