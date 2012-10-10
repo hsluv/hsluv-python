@@ -17,14 +17,14 @@ class TestHusl(unittest.TestCase):
         for h in range(37):
             for s in range(21):
                 for l in range(21):
-                    test = husl.husl_to_hex(h * 10.0, s * 5.0, l * 5.0)
+                    H = h * 10.0
+                    S = s * 5.0
+                    L = l * 5.0
+                    test = husl.husl_to_hex(H, S, L)
                     correct = self.snapshot['husl'][h][s][l]
                     self.assertEqual(test, correct)
-
-                    #H, S, L = husl.hex_to_husl(test)
-                    #self.assertEqual(round(H / 10.0), h)
-                    #self.assertEqual(round(S / 5.0), s)
-                    #self.assertEqual(round(L / 5.0), l)
+                    test2 = husl.husl_to_hex(*husl.hex_to_husl(correct))
+                    self.assertEqual(test2, correct)
 
 if __name__ == '__main__':
     unittest.main()

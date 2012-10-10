@@ -39,7 +39,7 @@ def hex_to_husl(hex):
     r = int(hex[0:2], 16) / 255.0
     g = int(hex[2:4], 16) / 255.0
     b = int(hex[4:6], 16) / 255.0
-    return LCH_HUSL(LUV_LCH(XYZ_LUV(RGB_XYZ([r, g, b]))))
+    return rgb_to_husl(r, g, b)
 
 def maxChroma(L, H):
     _ref = [0.0, 1.0]
@@ -109,20 +109,12 @@ def rgbPrepare(triple):
     return triple
 
 def XYZ_RGB(triple):
-    return [fromLinear(dotProduct(m[0], triple)),
-            fromLinear(dotProduct(m[1], triple)),
-            fromLinear(dotProduct(m[2], triple))]
+    xyz = map(lambda row: dotProduct(row, triple), m)
+    return map(fromLinear, xyz)
 
 def RGB_XYZ(triple):
-    R, G, B = triple
-
-    rgbl = [toLinear(R), toLinear(G), toLinear(B)]
-
-    X = dotProduct(m_inv[0], rgbl)
-    Y = dotProduct(m_inv[1], rgbl)
-    Z = dotProduct(m_inv[2], rgbl)
-
-    return [X, Y, Z]
+    rgbl = map(toLinear, triple)
+    return map(lambda row: dotProduct(row, rgbl), m_inv)
 
 def XYZ_LUV(triple):
     X, Y, Z = triple
@@ -131,7 +123,7 @@ def XYZ_LUV(triple):
 
     varU = (4 * X) / (X + (15.0 * Y) + (3 * Z))
     varV = (9 * Y) / (X + (15.0 * Y) + (3 * Z))
-    L = 116 * float(Y / refY) - 16
+    L = 116.0 * f(Y / refY) - 16
 
     # Black will create a divide-by-zero error
     if L == 0: return [0, 0, 0]
@@ -144,9 +136,7 @@ def XYZ_LUV(triple):
 def LUV_XYZ(triple):
     L, U, V = triple
 
-    if L == 0:
-        triple[2] = triple[1] = triple[0] = 0.0
-        return triple
+    if L == 0: return [0, 0, 0]
 
     varY = f_inv((L + 16) / 116.0)
     varU = U / (13.0 * L) + refU
@@ -183,8 +173,8 @@ def HUSL_LCH(triple):
     if L > 99.9999999: return [100, 0, H]
     if L < 0.00000001: return [0, 0, H]
 
-    max = maxChroma(L, H)
-    C = max / 100.0 * S
+    mx = maxChroma(L, H)
+    C = mx / 100.0 * S
 
     return [L, C, H]
 
@@ -194,7 +184,7 @@ def LCH_HUSL(triple):
     if L > 99.9999999: return [H, 0, 100]
     if L < 0.00000001: return [H, 0, 0]
     
-    max = maxChroma(L, H)
-    S = C / max * 100
+    mx = maxChroma(L, H)
+    S = C / mx * 100
 
     return [H, S, L]
