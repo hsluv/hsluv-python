@@ -10,7 +10,7 @@ Work in progress to port [HUSL](https://github.com/boronine/husl) to Python. Por
 
 **husl_to_rgb(hue, saturation, lightness)**
 
-Like above, but returns a list of 3 numbers between 0 and 1, for each RGB channel.
+Like above, but returns a list of 3 floats between 0 and 1, for each RGB channel.
 
 **hex_to_husl(hex)**
 
@@ -19,6 +19,8 @@ Takes a hex string and returns the HUSL color as a list of floats as defined abo
 **rgb_to_husl(red, green, blue)**
 
 Like above, but `red`, `green` and `blue` are passed as floats between 0 and 1.
+
+For HUSLp (the pastel variant), use `huslp_to_hex`, `huslp_to_rgb`, `hex_to_huslp` and `rgb_to_huslp`.
 
 ## Testing
 
