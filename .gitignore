@@ -4,4 +4,5 @@
 /test/snapshot-current.json
 /husl.egg-info
 /venv
+/dist
 

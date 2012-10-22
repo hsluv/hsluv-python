@@ -2,6 +2,10 @@
 
 Work in progress to port [HUSL](https://github.com/boronine/husl) to Python. Port started by Robert McGinley and released under the same license as HUSL.
 
+## Installation
+
+`pip install husl`
+
 ## Usage
 
 **husl_to_hex(hue, saturation, lightness)**
