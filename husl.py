@@ -22,8 +22,10 @@ refY = 1.00000
 refZ = 1.08883
 refU = 0.19784
 refV = 0.46834
-lab_e = 0.008856
-lab_k = 903.3
+
+# CIE LAB and LUV constants
+lab_e = (6/29)**3    # 0.008856... 
+lab_k = 24389.0/27.0 # 903.2962... 
 
 
 # Public API
@@ -46,11 +48,19 @@ def lch_to_rgb(l, c, h): return xyz_to_rgb(luv_to_xyz(lch_to_luv([l, c, h])))
 def rgb_to_lch(r, g, b): return luv_to_lch(xyz_to_luv(rgb_to_xyz([r, g, b])))
 
 def max_chroma(L, H):
+    """
+    For a given lightness and hue, return the maximum chroma that fits in
+    the RGB gamut.
+    
+    For a given Lightness, Hue, RGB channel, and limit (1 or 0),
+    return Chroma, such that passing this chroma value will cause the
+    given channel to pass the given limit.
+    """
     hrad = math.radians(H)
     sinH = (math.sin(hrad))
     cosH = (math.cos(hrad))
     sub1 = (math.pow(L + 16, 3.0) / 1560896.0)
-    sub2 = sub1 if sub1 > 0.008856 else (L / 903.3)
+    sub2 = sub1 if sub1 > lab_e else (L / lab_k)
     result = float("inf")
     for row in m:
         m1 = row[0]
@@ -68,6 +78,11 @@ def max_chroma(L, H):
     return result
 
 def _hrad_extremum(L):
+    """
+    Given Lightness, channel and limit, returns the Hue (in radians) at the point
+    where the maximum chroma (the chroma that will make the given channel pass
+    the given limit) is smallest. This is the dip in the curve.
+    """
     lhs = (math.pow(L, 3.0) + 48.0 * math.pow(L, 2.0) + 768.0 * L + 4096.0) / 1560896.0
     rhs = 1107.0 / 125000.0
     sub = lhs if lhs > rhs else 10.0 * L / 9033.0
@@ -100,7 +115,8 @@ def f(t):
     if t > lab_e:
         return (math.pow(t, 1.0 / 3.0))
     else:
-        return (7.787 * t + 16.0 / 116.0)
+        LAB_F_A = 1.0/3.0 * math.pow (6.0/29.0, -2.0) # 7.7870370302851422 
+        return (LAB_F_A * t + 16.0 / 116.0)
 
 def f_inv(t):
     if math.pow(t, 3.0) > lab_e:
