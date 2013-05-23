@@ -1,6 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/boronine/pyhusl.png)](http://travis-ci.org/boronine/pyhusl)
 
-A Python port of [HUSL](https://github.com/boronine/husl), started by Robert McGinley.
+A Python port of [HUSL](http://boronine.com/husl/), started by Robert McGinley.
 
 ## Installation
 
