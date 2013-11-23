@@ -170,7 +170,7 @@ def rgb_prepare(triple):
         # instead of Python 2 which is rounded to 5.0 which caused
         # a couple off by one errors in the tests. Tests now all pass
         # in Python 2 and Python 3
-        ret.append(round(ch * 255.001, 0))
+        ret.append(round(ch * 255 + 0.001, 0))
 
     return ret
 
@@ -195,14 +195,14 @@ def xyz_to_rgb(triple):
 
 
 def rgb_to_xyz(triple):
-    rgbl = map(to_linear, triple)
+    rgbl = list(map(to_linear, triple))
     return list(map(lambda row: dot_product(row, rgbl), m_inv))
 
 
 def xyz_to_luv(triple):
     X, Y, Z = triple
 
-    if X == 0.0 and Y == 0.0 and Z == 0.0:
+    if X == Y == Z == 0.0:
         return [0.0, 0.0, 0.0]
 
     varU = (4.0 * X) / (X + (15.0 * Y) + (3.0 * Z))
