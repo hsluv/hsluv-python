@@ -4,6 +4,7 @@ import os.path
 
 import husl
 
+
 class TestHusl(unittest.TestCase):
 
     def setUp(self):
@@ -12,6 +13,17 @@ class TestHusl(unittest.TestCase):
         json_data = open(name)
         self.snapshot = json.load(json_data)
         json_data.close()
+    
+    def test_within_rgb_range(self):
+        for H in range(0, 361, 5):
+            for S in range(0, 101, 5):
+                for L in range(0, 101, 5):
+                    RGB = husl.husl_to_rgb(H, S, L)
+                    for channel in RGB:
+                        assert channel >= -0.00000001 and channel <= 1.00000001
+                    RGB = husl.huslp_to_rgb(H, S, L)
+                    for channel in RGB:
+                        assert channel >= -0.00000001 and channel <= 1.00000001
     
     def test_snapshot(self):
         for hex_color, colors in self.snapshot.items():
@@ -53,7 +65,7 @@ class TestHusl(unittest.TestCase):
         for a, b in zip(tup1, tup2):
             if abs(a - b) > 0.00000001:
                 raise Exception("Mismatch: {} {}".format(a, b))
-
+    
 
 if __name__ == '__main__':
     unittest.main()
