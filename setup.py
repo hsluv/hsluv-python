@@ -12,7 +12,7 @@ setup(
     version = __version__,
     description = 'Human-friendly HSL',
     license = "MIT",
-    author_email = "alexei.boronine@gmail.com",
+    author_email = "alexei@boronine.com",
     url = "http://github.com/boronine/pyhusl",
     keywords = "color hsl cie cieluv colorwheel",
     classifiers = [
