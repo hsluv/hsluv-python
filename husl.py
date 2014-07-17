@@ -5,25 +5,26 @@ __version__ = "2.1.0"
 
 
 m = [
-    [3.2406, -1.5372, -0.4986],
-    [-0.9689, 1.8758, 0.0415],
-    [0.0557, -0.2040, 1.0570]
+    [ 3.240454162114103, -1.537138512797715, -0.49853140955601 ],
+    [ -0.96926603050518, 1.876010845446694,  0.041556017530349 ],
+    [ 0.055643430959114, -0.20402591351675,  1.057225188223179 ]
 ]
-
 m_inv = [
-    [0.4124, 0.3576, 0.1805],
-    [0.2126, 0.7152, 0.0722],
-    [0.0193, 0.1192, 0.9505]
+    [ 0.41245643908969,  0.3575760776439,  0.18043748326639  ],
+    [ 0.21267285140562,  0.71515215528781, 0.072174993306559 ],
+    [ 0.019333895582329, 0.1191920258813,  0.95030407853636  ]
 ]
 
 # Hard-coded D65 illuminant
 refX = 0.95047
 refY = 1.00000
 refZ = 1.08883
-refU = 0.19784
-refV = 0.46834
-lab_e = 0.008856
-lab_k = 903.3
+refU = (4 * refX) / (refX + (15 * refY) + (3 * refZ))
+refV = (9 * refY) / (refX + (15 * refY) + (3 * refZ))
+
+
+kappa = 24389.0 / 27
+epsilon = 216.0 / 24389
 
 
 # Public API
@@ -73,19 +74,23 @@ def max_chroma(L, H):
     sinH = (math.sin(hrad))
     cosH = (math.cos(hrad))
     sub1 = (math.pow(L + 16, 3.0) / 1560896.0)
-    sub2 = sub1 if sub1 > 0.008856 else (L / 903.3)
+    sub2 = sub1 if sub1 > epsilon else (L / kappa)
     result = float("inf")
     for row in m:
         m1 = row[0]
         m2 = row[1]
         m3 = row[2]
-        top = ((0.99915 * m1 + 1.05122 * m2 + 1.14460 * m3) * sub2)
-        rbottom = (0.86330 * m3 - 0.17266 * m2)
-        lbottom = (0.12949 * m3 - 0.38848 * m1)
+
+        top = (12739311 * m3 + 11700000 * m2 + 11120499 * m1) * sub2
+        rbottom = 9608480 * m3 - 1921696 * m2
+        lbottom = 1441272 * m3 - 4323816 * m1
+
         bottom = (rbottom * sinH + lbottom * cosH) * sub2
 
-        for t in (0.0, 1.0):
-            C = (L * (top - 1.05122 * t) / (bottom + 0.17266 * sinH * t))
+        for limit in (0.0, 1.0):
+            C = L * (top - 11700000 * limit) / (bottom + 1921696 * sinH * limit)
+
+            # TODO: GET RID OF THIS SHIT
             if C > 0.0 and C < result:
                 result = C
     return result
@@ -93,19 +98,20 @@ def max_chroma(L, H):
 
 def _hrad_extremum(L):
     lhs = (math.pow(L, 3.0) + 48.0 * math.pow(L, 2.0) + 768.0 * L + 4096.0) / 1560896.0
-    rhs = 1107.0 / 125000.0
-    sub = lhs if lhs > rhs else 10.0 * L / 9033.0
+    rhs = epsilon
+    sub = lhs if lhs > rhs else L / kappa
+
     chroma = float("inf")
     result = None
     for row in m:
         for limit in (0.0, 1.0):
             [m1, m2, m3] = row
-            top = -3015466475.0 * m3 * sub + 603093295.0 * m2 * sub - 603093295.0 * limit
-            bottom = 1356959916.0 * m1 * sub - 452319972.0 * m3 * sub
+            top = (20 * m3 - 4 * m2) * sub + 4 * limit
+            bottom = (3 * m3 - 9 * m1) * sub
             hrad = math.atan2(top, bottom)
             # This is a math hack to deal with tan quadrants, I'm too lazy to figure
             # out how to do this properly
-            if limit == 0.0:
+            if limit == 1.0:
                 hrad += math.pi
             test = max_chroma(L, math.degrees(hrad))
             if test < chroma:
@@ -124,17 +130,17 @@ def dot_product(a, b):
 
 
 def f(t):
-    if t > lab_e:
-        return (math.pow(t, 1.0 / 3.0))
+    if t > epsilon:
+        return 116 * math.pow((t / refY), 1.0 / 3.0) - 16.0
     else:
-        return (7.787 * t + 16.0 / 116.0)
+        return (t / refY) * kappa
 
 
 def f_inv(t):
-    if math.pow(t, 3.0) > lab_e:
-        return (math.pow(t, 3.0))
+    if t > 8:
+        return refY * math.pow((t + 16.0) / 116.0, 3.0)
     else:
-        return (116.0 * t - 16.0) / lab_k
+        return refY * t / kappa
 
 
 def from_linear(c):
@@ -207,7 +213,7 @@ def xyz_to_luv(triple):
 
     varU = (4.0 * X) / (X + (15.0 * Y) + (3.0 * Z))
     varV = (9.0 * Y) / (X + (15.0 * Y) + (3.0 * Z))
-    L = 116.0 * f(Y / refY) - 16.0
+    L = f(Y)
 
     # Black will create a divide-by-zero error
     if L == 0.0:
@@ -225,7 +231,7 @@ def luv_to_xyz(triple):
     if L == 0:
         return [0.0, 0.0, 0.0]
 
-    varY = f_inv((L + 16.0) / 116.0)
+    varY = f_inv(L)
     varU = U / (13.0 * L) + refU
     varV = V / (13.0 * L) + refV
     Y = varY * refY
