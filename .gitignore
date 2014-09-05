@@ -6,3 +6,6 @@
 /venv
 /dist
 
+# IntelliJ IDEA / PyCharm
+/.idea
+*.iml
