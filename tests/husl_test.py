@@ -5,11 +5,15 @@ import os.path
 import husl
 
 
+rgb_range_tolerance = 0.00000000001
+snapshot_tolerance = 0.00000000001
+
+
 class TestHusl(unittest.TestCase):
 
     def setUp(self):
         # Load snapshot into memory
-        name = os.path.join(os.path.dirname(__file__), 'snapshot-rev2.json')
+        name = os.path.join(os.path.dirname(__file__), 'snapshot-rev3.json')
         json_data = open(name)
         self.snapshot = json.load(json_data)
         json_data.close()
@@ -20,14 +24,14 @@ class TestHusl(unittest.TestCase):
                 for L in range(0, 101, 5):
                     RGB = husl.husl_to_rgb(H, S, L)
                     for channel in RGB:
-                        assert channel >= -0.00000001 and channel <= 1.00000001
+                        assert (channel >= -rgb_range_tolerance and channel <= 1 + rgb_range_tolerance), ((H, S, L), RGB)
                     RGB = husl.huslp_to_rgb(H, S, L)
                     for channel in RGB:
-                        assert channel >= -0.00000001 and channel <= 1.00000001
+                        assert (channel >= -rgb_range_tolerance and channel <= 1 + rgb_range_tolerance), ((H, S, L), RGB)
     
     def test_snapshot(self):
         for hex_color, colors in self.snapshot.items():
-            
+
             # Test forward functions
             test_rgb = husl.hex_to_rgb(hex_color)
             self.assertTuplesClose(test_rgb, colors['rgb'])
@@ -63,7 +67,7 @@ class TestHusl(unittest.TestCase):
 
     def assertTuplesClose(self, tup1, tup2):
         for a, b in zip(tup1, tup2):
-            if abs(a - b) > 0.00000001:
+            if abs(a - b) > snapshot_tolerance:
                 raise Exception("Mismatch: {} {}".format(a, b))
     
 

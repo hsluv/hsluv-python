@@ -1,30 +1,26 @@
 import operator
 import math
 
-__version__ = "3.0.0"
+__version__ = "5.0.0"
 
 
 m = [
-    [ 3.240454162114103, -1.537138512797715, -0.49853140955601 ],
-    [ -0.96926603050518, 1.876010845446694,  0.041556017530349 ],
-    [ 0.055643430959114, -0.20402591351675,  1.057225188223179 ]
+    [3.240969941904521, -1.537383177570093, -0.498610760293],
+    [-0.96924363628087, 1.87596750150772, 0.041555057407175],
+    [0.055630079696993, -0.20397695888897, 1.056971514242878],
 ]
 m_inv = [
-    [ 0.41245643908969,  0.3575760776439,  0.18043748326639  ],
-    [ 0.21267285140562,  0.71515215528781, 0.072174993306559 ],
-    [ 0.019333895582329, 0.1191920258813,  0.95030407853636  ]
+    [0.41239079926595, 0.35758433938387, 0.18048078840183],
+    [0.21263900587151, 0.71516867876775, 0.072192315360733],
+    [0.019330818715591, 0.11919477979462, 0.95053215224966],
 ]
-
-# Hard-coded D65 illuminant
-refX = 0.95047
-refY = 1.00000
-refZ = 1.08883
-refU = (4 * refX) / (refX + (15 * refY) + (3 * refZ))
-refV = (9 * refY) / (refX + (15 * refY) + (3 * refZ))
-
-
-kappa = 24389.0 / 27
-epsilon = 216.0 / 24389
+refX = 0.95045592705167
+refY = 1.0
+refZ = 1.089057750759878
+refU = 0.19783000664283
+refV = 0.46831999493879
+kappa = 903.2962962
+epsilon = 0.0088564516
 
 
 # Public API
@@ -69,60 +65,51 @@ def rgb_to_lch(r, g, b):
     return luv_to_lch(xyz_to_luv(rgb_to_xyz([r, g, b])))
 
 
-def max_chroma(L, H):
-    hrad = math.radians(H)
-    sinH = (math.sin(hrad))
-    cosH = (math.cos(hrad))
-    sub1 = (math.pow(L + 16, 3.0) / 1560896.0)
-    sub2 = sub1 if sub1 > epsilon else (L / kappa)
-    result = float("inf")
-    for row in m:
-        m1 = row[0]
-        m2 = row[1]
-        m3 = row[2]
-
-        top = (12739311 * m3 + 11700000 * m2 + 11120499 * m1) * sub2
-        rbottom = 9608480 * m3 - 1921696 * m2
-        lbottom = 1441272 * m3 - 4323816 * m1
-
-        bottom = (rbottom * sinH + lbottom * cosH) * sub2
-
-        for limit in (0.0, 1.0):
-            C = L * (top - 11700000 * limit) / (bottom + 1921696 * sinH * limit)
-
-            # TODO: GET RID OF THIS SHIT
-            if C > 0.0 and C < result:
-                result = C
-    return result
+def get_bounds(L):
+    sub1 = ((L + 16.0) ** 3.0) / 1560896.0
+    sub2 = sub1 if sub1 > epsilon else L / kappa
+    ret = []
+    for [m1, m2, m3] in m:
+        for t in [0, 1]:
+            top1 = (284517.0 * m1 - 94839.0 * m3) * sub2
+            top2 = (838422.0 * m3 + 769860.0 * m2 + 731718.0 * m1) * L * sub2 - 769860.0 * t * L
+            bottom = (632260.0 * m3 - 126452.0 * m2) * sub2 + 126452.0 * t
+            ret.append((top1 / bottom, top2 / bottom))
+    return ret
 
 
-def _hrad_extremum(L):
-    lhs = (math.pow(L, 3.0) + 48.0 * math.pow(L, 2.0) + 768.0 * L + 4096.0) / 1560896.0
-    rhs = epsilon
-    sub = lhs if lhs > rhs else L / kappa
-
-    chroma = float("inf")
-    result = None
-    for row in m:
-        for limit in (0.0, 1.0):
-            [m1, m2, m3] = row
-            top = (20 * m3 - 4 * m2) * sub + 4 * limit
-            bottom = (3 * m3 - 9 * m1) * sub
-            hrad = math.atan2(top, bottom)
-            # This is a math hack to deal with tan quadrants, I'm too lazy to figure
-            # out how to do this properly
-            if limit == 1.0:
-                hrad += math.pi
-            test = max_chroma(L, math.degrees(hrad))
-            if test < chroma:
-                chroma = test
-                result = hrad
-    return result
+def intersect_line_line(line1, line2):
+    return (line1[1] - line2[1]) / (line2[0] - line1[0])
 
 
-def max_chroma_pastel(L):
-    H = math.degrees(_hrad_extremum(L))
-    return max_chroma(L, H)
+def distance_from_pole(point):
+    return math.sqrt(point[0] ** 2 + point[1] ** 2)
+
+
+def length_of_ray_until_intersect(theta, line):
+    m1, b1 = line
+    length = b1 / (math.sin(theta) - m1 * math.cos(theta))
+    if length < 0:
+        return None
+    return length
+
+
+def max_safe_chroma_for_L(L):
+    lengths = []
+    for [m1, b1] in get_bounds(L):
+        x = intersect_line_line((m1, b1), (-1.0 / m1, 0.0))
+        lengths.append(distance_from_pole((x, b1 + x * m1)))
+    return min(lengths)
+
+
+def max_chroma_for_LH(L, H):
+    hrad = H / 360.0 * math.pi * 2.0
+    lengths = []
+    for line in get_bounds(L):
+        l = length_of_ray_until_intersect(hrad, line)
+        if l is not None:
+            lengths.append(l)
+    return min(lengths)
 
 
 def dot_product(a, b):
@@ -271,7 +258,7 @@ def husl_to_lch(triple):
     if L < 0.00000001:
         return [0.0, 0.0, H]
 
-    mx = max_chroma(L, H)
+    mx = max_chroma_for_LH(L, H)
     C = mx / 100.0 * S
 
     return [L, C, H]
@@ -285,7 +272,7 @@ def lch_to_husl(triple):
     if L < 0.00000001:
         return [H, 0.0, 0.0]
 
-    mx = max_chroma(L, H)
+    mx = max_chroma_for_LH(L, H)
     S = C / mx * 100.0
 
     return [H, S, L]
@@ -299,7 +286,7 @@ def huslp_to_lch(triple):
     if L < 0.00000001:
         return [0.0, 0.0, H]
 
-    mx = max_chroma_pastel(L)
+    mx = max_safe_chroma_for_L(L)
     C = mx / 100.0 * S
 
     return [L, C, H]
@@ -313,7 +300,7 @@ def lch_to_huslp(triple):
     if L < 0.00000001:
         return [H, 0.0, 0.0]
 
-    mx = max_chroma_pastel(L)
+    mx = max_safe_chroma_for_L(L)
     S = C / mx * 100.0
 
     return [H, S, L]
