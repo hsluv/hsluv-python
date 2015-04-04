@@ -13,7 +13,7 @@ setup(
     description='Human-friendly HSL',
     license="MIT",
     author_email="alexei@boronine.com",
-    url="http://github.com/boronine/pyhusl",
+    url="http://www.husl-colors.org",
     keywords="color hsl cie cieluv colorwheel",
     classifiers=[
         "Development Status :: 4 - Beta",

@@ -1,6 +1,6 @@
-[![Build Status](https://secure.travis-ci.org/boronine/pyhusl.png)](http://travis-ci.org/boronine/pyhusl)
+[![Build Status](https://travis-ci.org/husl-colors/husl.py.svg?branch=master)](http://travis-ci.org/husl-colors/husl.py)
 
-A Python implementation of [HUSL](http://www.boronine.com/husl/) (revision 3).
+A Python implementation of [HUSL](http://www.husl-colors.org) (revision 3).
 
 ## Installation
 
