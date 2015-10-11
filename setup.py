@@ -16,11 +16,13 @@ setup(
     url="http://www.husl-colors.org",
     keywords="color hsl cie cieluv colorwheel",
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Topic :: Software Development"
+        "Topic :: Software Development",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3"
     ],
     py_modules=["husl"],
     test_suite="tests.husl_test"

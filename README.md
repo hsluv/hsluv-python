@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/husl-colors/husl.py.svg?branch=master)](http://travis-ci.org/husl-colors/husl.py)
+[![Build Status](https://travis-ci.org/husl-colors/husl-python.svg?branch=master)](http://travis-ci.org/husl-colors/husl-python)
 [![Package Version](https://img.shields.io/pypi/v/husl.svg)](https://pypi.python.org/pypi/husl/)
 
 A Python implementation of [HUSL](http://www.husl-colors.org) (revision 3).

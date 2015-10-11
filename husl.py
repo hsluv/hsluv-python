@@ -1,7 +1,7 @@
 import operator
 import math
 
-__version__ = "4.0.2"
+__version__ = "4.0.3"
 
 
 m = [
@@ -163,7 +163,7 @@ def rgb_prepare(triple):
         # instead of Python 2 which is rounded to 5.0 which caused
         # a couple off by one errors in the tests. Tests now all pass
         # in Python 2 and Python 3
-        ret.append(round(ch * 255 + 0.001, 0))
+        ret.append(round(ch * 255 + 0.001))
 
     return ret
 
