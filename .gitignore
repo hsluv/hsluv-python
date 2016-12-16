@@ -1,11 +1,8 @@
 *.pyc
 *.pyo
-/test/snapshot-current.png
-/test/snapshot-current.json
-/husl.egg-info
+*.egg-info
 /venv
 /dist
-
 # IntelliJ IDEA / PyCharm
 /.idea
 *.iml

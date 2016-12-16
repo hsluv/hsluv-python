@@ -1,31 +1,32 @@
-[![Build Status](https://travis-ci.org/husl-colors/husl-python.svg?branch=master)](http://travis-ci.org/husl-colors/husl-python)
-[![Package Version](https://img.shields.io/pypi/v/husl.svg)](https://pypi.python.org/pypi/husl/)
+[![Build Status](https://travis-ci.org/hsluv/hsluv-python.svg?branch=master)](http://travis-ci.org/hsluv/hsluv-python)
+[![Package Version](https://img.shields.io/pypi/v/hsluv.svg)](https://pypi.python.org/pypi/hsluv/)
 
-A Python implementation of [HUSL](http://www.husl-colors.org) (revision 3).
+A Python implementation of [HSLuv](http://www.hsluv.org) (revision 3).
 
 ## Installation
 
-`pip install husl`
+`pip install hsluv`
 
 ## Usage
 
-**husl_to_hex(hue, saturation, lightness)**
+**hsluv_to_hex([hue, saturation, lightness])**
 
-`hue` is a float between 0 and 360, `saturation` and `lightness` are floats between 0 and 100. This function returns the resulting color as a hex string.
+`hue` is a float between 0 and 360, `saturation` and `lightness` are floats between 0 and 100. This 
+function returns the resulting color as a hex string.
 
-**husl_to_rgb(hue, saturation, lightness)**
+**hsluv_to_rgb([hue, saturation, lightness])**
 
 Like above, but returns a list of 3 floats between 0 and 1, for each RGB channel.
 
-**hex_to_husl(hex)**
+**hex_to_hsluv(hex)**
 
-Takes a hex string and returns the HUSL color as a list of floats as defined above.
+Takes a hex string and returns the HSLuv color as a list of floats as defined above.
 
-**rgb_to_husl(red, green, blue)**
+**rgb_to_hsluv(red, green, blue)**
 
 Like above, but `red`, `green` and `blue` are passed as floats between 0 and 1.
 
-For HUSLp (the pastel variant), use `huslp_to_hex`, `huslp_to_rgb`, `hex_to_huslp` and `rgb_to_huslp`.
+For HPLuv (the pastel variant), use `hpluv_to_hex`, `hpluv_to_rgb`, `hex_to_hpluv` and `rgb_to_hpluv`.
 
 ## Testing
 

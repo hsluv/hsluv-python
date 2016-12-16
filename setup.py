@@ -5,16 +5,16 @@ try:
     from setuptools.core import setup
 except ImportError:
     from distutils.core import setup
-from husl import __version__
+from hsluv import __version__
 
 setup(
-    name='husl',
+    name='hsluv',
     version=__version__,
     description='Human-friendly HSL',
     license="MIT",
     author_email="alexei@boronine.com",
-    url="http://www.husl-colors.org",
-    keywords="color hsl cie cieluv colorwheel",
+    url="http://www.hsluv.org",
+    keywords="color hsl cie cieluv colorwheel hsluv hpluv",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -24,6 +24,6 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3"
     ],
-    py_modules=["husl"],
-    test_suite="tests.husl_test"
+    py_modules=["hsluv"],
+    test_suite="tests.hsluv_test"
 )
