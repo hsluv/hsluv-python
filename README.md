@@ -22,7 +22,7 @@ Like above, but returns a list of 3 floats between 0 and 1, for each RGB channel
 
 Takes a hex string and returns the HSLuv color as a list of floats as defined above.
 
-**rgb_to_hsluv(red, green, blue)**
+**rgb_to_hsluv([red, green, blue])**
 
 Like above, but `red`, `green` and `blue` are passed as floats between 0 and 1.
 
