@@ -1,10 +1,6 @@
 #!/usr/bin/python
+from setuptools import setup
 
-# Use setuptools if we can
-try:
-    from setuptools.core import setup
-except ImportError:
-    from distutils.core import setup
 from hsluv import __version__
 
 setup(
