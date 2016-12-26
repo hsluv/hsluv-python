@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/hsluv/hsluv-python.svg?branch=master)](http://travis-ci.org/hsluv/hsluv-python)
 [![Package Version](https://img.shields.io/pypi/v/hsluv.svg)](https://pypi.python.org/pypi/hsluv/)
 
-A Python implementation of [HSLuv](http://www.hsluv.org) (revision 3).
+A Python implementation of [HSLuv](http://www.hsluv.org) (revision 4).
 
 ## Installation
 
