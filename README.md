@@ -9,6 +9,11 @@ A Python implementation of [HSLuv](http://www.hsluv.org) (revision 4).
 
 ## Usage
 
+> This library does not hide (clamp) floating point error, e.g. you might receive a value outside
+> of the expected range. If you wish to display the outputs of this library, consider rounding them 
+> for your purpose. The floating point error has not been quantified, but at least 10 decimal digits 
+> should be free of it.
+
 **hsluv_to_hex([hue, saturation, lightness])**
 
 `hue` is a float between 0 and 360, `saturation` and `lightness` are floats between 0 and 100. This 
