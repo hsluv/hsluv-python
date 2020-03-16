@@ -7,6 +7,8 @@ setup(
     name='hsluv',
     version=__version__,
     description='Human-friendly HSL',
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     license="MIT",
     author_email="alexei@boronine.com",
     url="http://www.hsluv.org",
@@ -19,6 +21,9 @@ setup(
         "Topic :: Software Development",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3"
+    ],
+    setup_requires=[
+        'setuptools>=38.6.0',  # for long_description_content_type
     ],
     py_modules=["hsluv"],
     test_suite="tests.hsluv_test"
