@@ -14,20 +14,20 @@ A Python implementation of [HSLuv](http://www.hsluv.org) (revision 4).
 > for your purpose. The floating point error has not been quantified, but at least 10 decimal digits 
 > should be free of it.
 
-**hsluv_to_hex([hue, saturation, lightness])**
+### `hsluv_to_hex([hue, saturation, lightness])`
 
 `hue` is a float between 0 and 360, `saturation` and `lightness` are floats between 0 and 100. This 
 function returns the resulting color as a hex string.
 
-**hsluv_to_rgb([hue, saturation, lightness])**
+### `hsluv_to_rgb([hue, saturation, lightness])`
 
 Like above, but returns a list of 3 floats between 0 and 1, for each RGB channel.
 
-**hex_to_hsluv(hex)**
+### `hex_to_hsluv(hex)`
 
 Takes a hex string and returns the HSLuv color as a list of floats as defined above.
 
-**rgb_to_hsluv([red, green, blue])**
+### `rgb_to_hsluv([red, green, blue])`
 
 Like above, but `red`, `green` and `blue` are passed as floats between 0 and 1.
 
