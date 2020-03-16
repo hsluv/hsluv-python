@@ -8,7 +8,6 @@ yourself, clone https://github.com/hsluv/hsluv and run:
 import math
 
 
-
 __version__ = '0.0.2'
 
 m = [[3.240969941904521, -1.537383177570093, -0.498610760293],
@@ -31,7 +30,8 @@ def _distance_line_from_origin(line):
 
 
 def _length_of_ray_until_intersect(theta, line):
-    return line['intercept'] / (math.sin(theta) - line['slope'] * math.cos(theta))
+    return line['intercept']\
+         / (math.sin(theta) - line['slope'] * math.cos(theta))
 
 
 def _get_bounds(l):
@@ -53,7 +53,8 @@ def _get_bounds(l):
             t = _g1
             _g1 = _g1 + 1
             top1 = (284517 * m1 - 94839 * m3) * sub2
-            top2 = (838422 * m3 + 769860 * m2 + 731718 * m1) * l * sub2 - (769860 * t) * l
+            top2 = (838422 * m3 + 769860 * m2 + 731718 * m1)\
+                * l * sub2 - (769860 * t) * l
             bottom = (632260 * m3 - 126452 * m2) * sub2 + 126452 * t
             result.append({'slope': top1 / bottom, 'intercept': top2 / bottom})
     return result
@@ -67,9 +68,7 @@ def _max_safe_chroma_for_l(l):
         i = _g
         _g = _g + 1
         length = _distance_line_from_origin(bounds[i])
-        if math.isnan(_hx_min):
-            _hx_min = _hx_min
-        elif math.isnan(length):
+        if math.isnan(length):
             _hx_min = length
         else:
             _hx_min = min(_hx_min, length)
@@ -86,9 +85,7 @@ def _max_chroma_for_lh(l, h):
         _g = (_g + 1)
         length = _length_of_ray_until_intersect(hrad, bound)
         if length >= 0:
-            if math.isnan(_hx_min):
-                _hx_min = _hx_min
-            elif math.isnan(length):
+            if math.isnan(length):
                 _hx_min = length
             else:
                 _hx_min = min(_hx_min, length)
@@ -96,28 +93,28 @@ def _max_chroma_for_lh(l, h):
 
 
 def _dot_product(a, b):
-    sum = 0
+    _sum = 0
     _g1 = 0
     _g = len(a)
     while _g1 < _g:
         i = _g1
         _g1 = _g1 + 1
-        sum += a[i] * b[i]
-    return sum
+        _sum += a[i] * b[i]
+    return _sum
 
 
 def _from_linear(c):
     if c <= 0.0031308:
         return 12.92 * c
-    else:
-        return 1.055 * math.pow(c, 0.416666666666666685) - 0.055
+
+    return 1.055 * math.pow(c, 0.416666666666666685) - 0.055
 
 
 def _to_linear(c):
     if c > 0.04045:
         return math.pow((c + 0.055) / 1.055, 2.4)
-    else:
-        return c / 12.92
+
+    return c / 12.92
 
 
 def xyz_to_rgb(_hx_tuple):
@@ -139,15 +136,15 @@ def rgb_to_xyz(_hx_tuple):
 def _y_to_l(y):
     if y <= epsilon:
         return y / refY * kappa
-    else:
-        return 116 * math.pow(y / refY, 0.333333333333333315) - 16
+
+    return 116 * math.pow(y / refY, 0.333333333333333315) - 16
 
 
 def _l_to_y(l):
     if l <= 8:
         return refY * l / kappa
-    else:
-        return refY * math.pow((l + 16) / 116, 3)
+
+    return refY * math.pow((l + 16) / 116, 3)
 
 
 def xyz_to_luv(_hx_tuple):
@@ -281,18 +278,18 @@ def rgb_to_hex(_hx_tuple):
     return h
 
 
-def hex_to_rgb(hex):
-    hex = hex.lower()
+def hex_to_rgb(_hex):
+    _hex = _hex.lower()
     ret = []
     _g = 0
     while _g < 3:
         i = _g
         _g = _g + 1
         index = i * 2 + 1
-        _hx_str = hex[index]
+        _hx_str = _hex[index]
         digit1 = hex_chars.find(_hx_str)
         index1 = i * 2 + 2
-        str1 = hex[index1]
+        str1 = _hex[index1]
         digit2 = hex_chars.find(str1)
         n = digit1 * 16 + digit2
         ret.append(n / 255.0)
