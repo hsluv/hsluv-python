@@ -5,6 +5,7 @@ yourself, clone https://github.com/hsluv/hsluv and run:
     haxe -cp haxe/src hsluv.Hsluv -python hsluv.py
 """
 
+from __future__ import division
 import math
 
 
