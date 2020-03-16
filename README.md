@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/hsluv/hsluv-python.svg?branch=master)](http://travis-ci.org/hsluv/hsluv-python)
+[![Build Status](https://travis-ci.org/hsluv/hsluv-python.svg?branch=master)](https://travis-ci.org/hsluv/hsluv-python)
 [![Package Version](https://img.shields.io/pypi/v/hsluv.svg)](https://pypi.python.org/pypi/hsluv/)
 
-A Python implementation of [HSLuv](http://www.hsluv.org) (revision 4).
+A Python implementation of [HSLuv](https://www.hsluv.org) (revision 4).
 
 ## Installation
 
@@ -39,6 +39,6 @@ Run `python setup.py test`.
 
 ## Authors
 
-* Robert McGinley ([mcginleyr1](http://github.com/mcginleyr1))
-* Alexei Boronine ([boronine](http://github.com/boronine))
+* Robert McGinley ([mcginleyr1](https://github.com/mcginleyr1))
+* Alexei Boronine ([boronine](https://github.com/boronine))
 

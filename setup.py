@@ -9,7 +9,7 @@ setup(
     description='Human-friendly HSL',
     license="MIT",
     author_email="alexei@boronine.com",
-    url="http://www.hsluv.org",
+    url="https://www.hsluv.org",
     keywords="color hsl cie cieluv colorwheel hsluv hpluv",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
