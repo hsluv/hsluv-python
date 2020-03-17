@@ -6,6 +6,7 @@ yourself, clone https://github.com/hsluv/hsluv and run:
 """
 
 from __future__ import division
+from functools import wraps, partial
 import math
 
 
@@ -23,6 +24,17 @@ refV = 0.46831999493879
 kappa = 903.2962962
 epsilon = 0.0088564516
 hex_chars = "0123456789abcdef"
+
+
+def _normalize_output(conversion):
+    # as in snapshot rev 4, the tolerance should be 1e-11
+    normalize = partial(round, ndigits=11-1)
+
+    @wraps(conversion)
+    def normalized(*args, **kwargs):
+        color = conversion(*args, **kwargs)
+        return [normalize(c) for c in color]
+    return normalized
 
 
 def _distance_line_from_origin(line):
@@ -305,16 +317,21 @@ def rgb_to_lch(_hx_tuple):
     return luv_to_lch(xyz_to_luv(rgb_to_xyz(_hx_tuple)))
 
 
-def hsluv_to_rgb(_hx_tuple):
+def _hsluv_to_rgb(_hx_tuple):
     return lch_to_rgb(hsluv_to_lch(_hx_tuple))
+
+hsluv_to_rgb = _normalize_output(_hsluv_to_rgb)
 
 
 def rgb_to_hsluv(_hx_tuple):
     return lch_to_hsluv(rgb_to_lch(_hx_tuple))
 
 
-def hpluv_to_rgb(_hx_tuple):
+def _hpluv_to_rgb(_hx_tuple):
     return lch_to_rgb(hpluv_to_lch(_hx_tuple))
+
+
+hpluv_to_rgb = _normalize_output(_hpluv_to_rgb)
 
 
 def rgb_to_hpluv(_hx_tuple):
