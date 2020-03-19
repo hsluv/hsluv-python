@@ -2,36 +2,40 @@ import unittest
 import json
 import os.path
 
-from hsluv import *
+from hsluv import (
+    hex_to_rgb, rgb_to_hex, hex_to_hsluv, hex_to_hpluv, hpluv_to_hex,
+    rgb_to_xyz, xyz_to_rgb, hsluv_to_rgb, hpluv_to_rgb, hsluv_to_hex,
+    luv_to_xyz, luv_to_lch, lch_to_hsluv, hsluv_to_lch, lch_to_hpluv,
+    xyz_to_luv, lch_to_luv, hpluv_to_lch
+)
+from itertools import product
 
 
-rgb_range_tolerance = 0.00000000001
-snapshot_tolerance = 0.00000000001
+rgb_range_tolerance = 1e-11
+snapshot_tolerance = 1e-11
 
 
 class TestHusl(unittest.TestCase):
-
     def setUp(self):
         # Load snapshot into memory
         name = os.path.join(os.path.dirname(__file__), 'snapshot-rev4.json')
         json_data = open(name)
         self.snapshot = json.load(json_data)
         json_data.close()
-    
+
     def test_within_rgb_range(self):
-        for h in range(0, 361, 5):
-            for s in range(0, 101, 5):
-                for l in range(0, 101, 5):
-                    for func in [hsluv_to_rgb, hpluv_to_rgb]:
-                        hsl = [h, s, l]
-                        rgb = func(hsl)
-                        for channel in rgb:
-                            in_range = -rgb_range_tolerance <= channel <= 1 + rgb_range_tolerance
-                            assert in_range, (hsl, rgb)
+        ranges = range(0, 361, 5), range(0, 101, 5), range(0, 101, 5)
+
+        for h, s, l in product(*ranges):
+            for func in [hsluv_to_rgb, hpluv_to_rgb]:
+                hsl = h, s, l
+                rgb = func(hsl)
+                for channel in rgb:
+                    self.assertLessEqual(-rgb_range_tolerance, channel)
+                    self.assertLessEqual(channel, 1+rgb_range_tolerance)
 
     def test_snapshot(self):
         for hex_color, colors in self.snapshot.items():
-
             # Test forward functions
             test_rgb = hex_to_rgb(hex_color)
             self.assert_tuples_close(test_rgb, colors['rgb'])
@@ -69,7 +73,7 @@ class TestHusl(unittest.TestCase):
         for a, b in zip(tup1, tup2):
             if abs(a - b) > snapshot_tolerance:
                 raise Exception("Mismatch: {} {}".format(a, b))
-    
+
 
 if __name__ == '__main__':
     unittest.main()
