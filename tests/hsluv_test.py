@@ -2,14 +2,9 @@ import unittest
 import json
 import os.path
 
-from hsluv import (
-    hex_to_rgb, rgb_to_hex, hex_to_hsluv, hex_to_hpluv, hpluv_to_hex,
-    rgb_to_xyz, xyz_to_rgb, hsluv_to_rgb, hpluv_to_rgb, hsluv_to_hex,
-    luv_to_xyz, luv_to_lch, lch_to_hsluv, hsluv_to_lch, lch_to_hpluv,
-    xyz_to_luv, lch_to_luv, hpluv_to_lch
-)
-from itertools import product
 
+from hsluv import *
+from hsluv import (_hsluv_to_rgb, _hpluv_to_rgb)  # no normalized output
 
 rgb_range_tolerance = 1e-11
 snapshot_tolerance = 1e-11
@@ -24,15 +19,21 @@ class TestHusl(unittest.TestCase):
         json_data.close()
 
     def test_within_rgb_range(self):
-        ranges = range(0, 361, 5), range(0, 101, 5), range(0, 101, 5)
-
-        for h, s, l in product(*ranges):
-            for func in [hsluv_to_rgb, hpluv_to_rgb]:
-                hsl = h, s, l
-                rgb = func(hsl)
-                for channel in rgb:
-                    self.assertLessEqual(-rgb_range_tolerance, channel)
-                    self.assertLessEqual(channel, 1+rgb_range_tolerance)
+        for h in range(0, 361, 5):
+            for s in range(0, 101, 5):
+                for l in range(0, 101, 5):
+                    for func in [_hsluv_to_rgb, _hpluv_to_rgb]:
+                        hsl = [h, s, l]
+                        rgb = func(hsl)
+                        for channel in rgb:
+                            in_range = -rgb_range_tolerance <= channel <= 1 + rgb_range_tolerance
+                            assert in_range, (hsl, rgb)
+                    for func in [hsluv_to_rgb, hpluv_to_rgb]:
+                        hsl = h, s, l
+                        rgb = func(hsl)
+                        for channel in rgb:
+                            self.assertLessEqual(channel, 1)
+                            self.assertLessEqual(0, channel)
 
     def test_snapshot(self):
         for hex_color, colors in self.snapshot.items():
