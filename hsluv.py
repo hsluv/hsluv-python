@@ -33,7 +33,7 @@ def _normalize_output(conversion):
     @_wraps(conversion)
     def normalized(*args, **kwargs):
         color = conversion(*args, **kwargs)
-        return [normalize(c) for c in color]
+        return tuple(normalize(c) for c in color)
     return normalized
 
 
@@ -131,19 +131,19 @@ def _to_linear(c):
 
 
 def xyz_to_rgb(_hx_tuple):
-    return [
+    return (
         _from_linear(_dot_product(_m[0], _hx_tuple)),
         _from_linear(_dot_product(_m[1], _hx_tuple)),
-        _from_linear(_dot_product(_m[2], _hx_tuple))]
+        _from_linear(_dot_product(_m[2], _hx_tuple)))
 
 
 def rgb_to_xyz(_hx_tuple):
-    rgbl = [_to_linear(_hx_tuple[0]),
+    rgbl = (_to_linear(_hx_tuple[0]),
             _to_linear(_hx_tuple[1]),
-            _to_linear(_hx_tuple[2])]
-    return [_dot_product(_min_v[0], rgbl),
+            _to_linear(_hx_tuple[2]))
+    return (_dot_product(_min_v[0], rgbl),
             _dot_product(_min_v[1], rgbl),
-            _dot_product(_min_v[2], rgbl)]
+            _dot_product(_min_v[2], rgbl))
 
 
 def _y_to_l(y):
@@ -175,10 +175,10 @@ def xyz_to_luv(_hx_tuple):
         var_v = float("nan")
     l = _y_to_l(y)
     if l == 0:
-        return [0, 0, 0]
+        return (0, 0, 0)
     u = 13 * l * (var_u - _ref_u)
     v = 13 * l * (var_v - _ref_v)
-    return [l, u, v]
+    return (l, u, v)
 
 
 def luv_to_xyz(_hx_tuple):
@@ -186,13 +186,13 @@ def luv_to_xyz(_hx_tuple):
     u = float(_hx_tuple[1])
     v = float(_hx_tuple[2])
     if l == 0:
-        return [0, 0, 0]
+        return (0, 0, 0)
     var_u = u / (13 * l) + _ref_u
     var_v = v / (13 * l) + _ref_v
     y = _l_to_y(l)
     x = 0 - ((9 * y * var_u) / (((var_u - 4) * var_v) - var_u * var_v))
     z = (((9 * y) - (15 * var_v * y)) - (var_v * x)) / (3 * var_v)
-    return [x, y, z]
+    return (x, y, z)
 
 
 def luv_to_lch(_hx_tuple):
@@ -211,7 +211,7 @@ def luv_to_lch(_hx_tuple):
         h = hrad * 180.0 / 3.1415926535897932
         if h < 0:
             h = 360 + h
-    return [l, c, h]
+    return (l, c, h)
 
 
 def lch_to_luv(_hx_tuple):
@@ -221,7 +221,7 @@ def lch_to_luv(_hx_tuple):
     hrad = h / 360.0 * 2 * _math.pi
     u = _math.cos(hrad) * c
     v = _math.sin(hrad) * c
-    return [l, u, v]
+    return (l, u, v)
 
 
 def hsluv_to_lch(_hx_tuple):
@@ -229,12 +229,12 @@ def hsluv_to_lch(_hx_tuple):
     s = float(_hx_tuple[1])
     l = float(_hx_tuple[2])
     if l > 99.9999999:
-        return [100, 0, h]
+        return (100, 0, h)
     if l < 0.00000001:
-        return [0, 0, h]
+        return (0, 0, h)
     _hx_max = _max_chroma_for_lh(l, h)
     c = _hx_max / 100 * s
-    return [l, c, h]
+    return (l, c, h)
 
 
 def lch_to_hsluv(_hx_tuple):
@@ -242,12 +242,12 @@ def lch_to_hsluv(_hx_tuple):
     c = float(_hx_tuple[1])
     h = float(_hx_tuple[2])
     if l > 99.9999999:
-        return [h, 0, 100]
+        return (h, 0, 100)
     if l < 0.00000001:
-        return [h, 0, 0]
+        return (h, 0, 0)
     _hx_max = _max_chroma_for_lh(l, h)
     s = c / _hx_max * 100
-    return [h, s, l]
+    return (h, s, l)
 
 
 def hpluv_to_lch(_hx_tuple):
@@ -255,12 +255,12 @@ def hpluv_to_lch(_hx_tuple):
     s = float(_hx_tuple[1])
     l = float(_hx_tuple[2])
     if l > 99.9999999:
-        return [100, 0, h]
+        return (100, 0, h)
     if l < 0.00000001:
-        return [0, 0, h]
+        return (0, 0, h)
     _hx_max = _max_safe_chroma_for_l(l)
     c = _hx_max / 100 * s
-    return [l, c, h]
+    return (l, c, h)
 
 
 def lch_to_hpluv(_hx_tuple):
@@ -268,12 +268,12 @@ def lch_to_hpluv(_hx_tuple):
     c = float(_hx_tuple[1])
     h = float(_hx_tuple[2])
     if l > 99.9999999:
-        return [h, 0, 100]
+        return (h, 0, 100)
     if l < 0.00000001:
-        return [h, 0, 0]
+        return (h, 0, 0)
     _hx_max = _max_safe_chroma_for_l(l)
     s = c / _hx_max * 100
-    return [h, s, l]
+    return (h, s, l)
 
 
 def rgb_to_hex(_hx_tuple):
@@ -306,7 +306,7 @@ def hex_to_rgb(_hex):
         digit2 = _hex_chars.find(str1)
         n = digit1 * 16 + digit2
         ret.append(n / 255.0)
-    return ret
+    return tuple(ret)
 
 
 def lch_to_rgb(_hx_tuple):
