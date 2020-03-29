@@ -130,6 +130,20 @@ def _to_linear(c):
     return c / 12.92
 
 
+def _y_to_l(y):
+    if y <= _epsilon:
+        return y / _ref_y * _kappa
+
+    return 116 * _math.pow(y / _ref_y, 0.333333333333333315) - 16
+
+
+def _l_to_y(l):
+    if l <= 8:
+        return _ref_y * l / _kappa
+
+    return _ref_y * _math.pow((l + 16) / 116, 3)
+
+
 def xyz_to_rgb(_hx_tuple):
     return (
         _from_linear(_dot_product(_m[0], _hx_tuple)),
@@ -144,20 +158,6 @@ def rgb_to_xyz(_hx_tuple):
     return (_dot_product(_min_v[0], rgbl),
             _dot_product(_min_v[1], rgbl),
             _dot_product(_min_v[2], rgbl))
-
-
-def _y_to_l(y):
-    if y <= _epsilon:
-        return y / _ref_y * _kappa
-
-    return 116 * _math.pow(y / _ref_y, 0.333333333333333315) - 16
-
-
-def _l_to_y(l):
-    if l <= 8:
-        return _ref_y * l / _kappa
-
-    return _ref_y * _math.pow((l + 16) / 116, 3)
 
 
 def xyz_to_luv(_hx_tuple):
