@@ -10,7 +10,7 @@ from functools import wraps as _wraps, partial as _partial
 import math as _math
 
 
-__version__ = '0.0.2'
+__version__ = '5.0.0'
 
 _m = [[3.240969941904521, -1.537383177570093, -0.498610760293],
       [-0.96924363628087, 1.87596750150772, 0.041555057407175],
