@@ -320,6 +320,7 @@ def rgb_to_lch(_hx_tuple):
 def _hsluv_to_rgb(_hx_tuple):
     return lch_to_rgb(hsluv_to_lch(_hx_tuple))
 
+
 hsluv_to_rgb = _normalize_output(_hsluv_to_rgb)
 
 
