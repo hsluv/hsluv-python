@@ -120,7 +120,7 @@ def _from_linear(c):
     if c <= 0.0031308:
         return 12.92 * c
 
-    return 1.055 * _math.pow(c, 0.416666666666666685) - 0.055
+    return 1.055 * _math.pow(c, 5 / 12) - 0.055
 
 
 def _to_linear(c):
@@ -134,7 +134,7 @@ def _y_to_l(y):
     if y <= _epsilon:
         return y / _ref_y * _kappa
 
-    return 116 * _math.pow(y / _ref_y, 0.333333333333333315) - 16
+    return 116 * _math.pow(y / _ref_y, 1 / 3) - 16
 
 
 def _l_to_y(l):
@@ -204,11 +204,11 @@ def luv_to_lch(_hx_tuple):
         c = float("nan")
     else:
         c = _math.sqrt(_v)
-    if c < 0.00000001:
+    if c < 1e-08:
         h = 0
     else:
         hrad = _math.atan2(v, u)
-        h = hrad * 180.0 / 3.1415926535897932
+        h = hrad * 180.0 / _math.pi
         if h < 0:
             h = 360 + h
     return (l, c, h)
@@ -228,9 +228,9 @@ def hsluv_to_lch(_hx_tuple):
     h = float(_hx_tuple[0])
     s = float(_hx_tuple[1])
     l = float(_hx_tuple[2])
-    if l > 99.9999999:
+    if l > 100-1e-7:
         return (100, 0, h)
-    if l < 0.00000001:
+    if l < 1e-08:
         return (0, 0, h)
     _hx_max = _max_chroma_for_lh(l, h)
     c = _hx_max / 100 * s
@@ -241,9 +241,9 @@ def lch_to_hsluv(_hx_tuple):
     l = float(_hx_tuple[0])
     c = float(_hx_tuple[1])
     h = float(_hx_tuple[2])
-    if l > 99.9999999:
+    if l > 100-1e-7:
         return (h, 0, 100)
-    if l < 0.00000001:
+    if l < 1e-08:
         return (h, 0, 0)
     _hx_max = _max_chroma_for_lh(l, h)
     s = c / _hx_max * 100
@@ -254,9 +254,9 @@ def hpluv_to_lch(_hx_tuple):
     h = float(_hx_tuple[0])
     s = float(_hx_tuple[1])
     l = float(_hx_tuple[2])
-    if l > 99.9999999:
+    if l > 100-1e-7:
         return (100, 0, h)
-    if l < 0.00000001:
+    if l < 1e-08:
         return (0, 0, h)
     _hx_max = _max_safe_chroma_for_l(l)
     c = _hx_max / 100 * s
@@ -267,9 +267,9 @@ def lch_to_hpluv(_hx_tuple):
     l = float(_hx_tuple[0])
     c = float(_hx_tuple[1])
     h = float(_hx_tuple[2])
-    if l > 99.9999999:
+    if l > 100-1e-7:
         return (h, 0, 100)
-    if l < 0.00000001:
+    if l < 1e-08:
         return (h, 0, 0)
     _hx_max = _max_safe_chroma_for_l(l)
     s = c / _hx_max * 100
