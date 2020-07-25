@@ -5,9 +5,8 @@ yourself, clone https://github.com/hsluv/hsluv and run:
     haxe -cp haxe/src hsluv.Hsluv -python hsluv.py
 """
 
-from __future__ import division
-from functools import wraps as _wraps, partial as _partial
-import math as _math
+from functools import wraps, partial
+import math
 
 
 __version__ = '5.0.0'
@@ -18,19 +17,19 @@ _m = [[3.240969941904521, -1.537383177570093, -0.498610760293],
 _min_v = [[0.41239079926595, 0.35758433938387, 0.18048078840183],
           [0.21263900587151, 0.71516867876775, 0.072192315360733],
           [0.019330818715591, 0.11919477979462, 0.95053215224966]]
+# CIE1931 D65 white point
 _ref_y = 1.0
-_ref_u = 0.19783000664283
-_ref_v = 0.46831999493879
-_kappa = 903.2962962
-_epsilon = 0.0088564516
-_hex_chars = "0123456789abcdef"
+_ref_u = 0.19782944951777845
+_ref_v = 0.46833216824138596
+_kappa = 24389/27
+_epsilon = 216/24389
 
 
 def _normalize_output(conversion):
     # as in snapshot rev 4, the tolerance should be 1e-11
-    normalize = _partial(round, ndigits=11-1)
+    normalize = partial(round, ndigits=11-1)
 
-    @_wraps(conversion)
+    @wraps(conversion)
     def normalized(*args, **kwargs):
         color = conversion(*args, **kwargs)
         return tuple(normalize(c) for c in color)
@@ -38,18 +37,18 @@ def _normalize_output(conversion):
 
 
 def _distance_line_from_origin(line):
-    v = _math.pow(line['slope'], 2) + 1
-    return _math.fabs(line['intercept']) / _math.sqrt(v)
+    v = line['slope'] ** 2 + 1
+    return abs(line['intercept']) / math.sqrt(v)
 
 
 def _length_of_ray_until_intersect(theta, line):
     return line['intercept']\
-         / (_math.sin(theta) - line['slope'] * _math.cos(theta))
+         / (math.sin(theta) - line['slope'] * math.cos(theta))
 
 
 def _get_bounds(l):
     result = []
-    sub1 = _math.pow(l + 16, 3) / 1560896
+    sub1 = ((l + 16) / 116) ** 3
     if sub1 > _epsilon:
         sub2 = sub1
     else:
@@ -57,14 +56,14 @@ def _get_bounds(l):
     _g = 0
     while _g < 3:
         c = _g
-        _g = _g + 1
+        _g += 1
         m1 = _m[c][0]
         m2 = _m[c][1]
         m3 = _m[c][2]
         _g1 = 0
         while _g1 < 2:
             t = _g1
-            _g1 = _g1 + 1
+            _g1 += 1
             top1 = (284517 * m1 - 94839 * m3) * sub2
             top2 = (838422 * m3 + 769860 * m2 + 731718 * m1)\
                 * l * sub2 - (769860 * t) * l
@@ -74,58 +73,30 @@ def _get_bounds(l):
 
 
 def _max_safe_chroma_for_l(l):
-    bounds = _get_bounds(l)
-    _hx_min = 1.7976931348623157e+308
-    _g = 0
-    while _g < 2:
-        i = _g
-        _g = _g + 1
-        length = _distance_line_from_origin(bounds[i])
-        if _math.isnan(length):
-            _hx_min = length
-        else:
-            _hx_min = min(_hx_min, length)
-    return _hx_min
+    return min(_distance_line_from_origin(bound)
+            for bound in _get_bounds(l))
 
 
 def _max_chroma_for_lh(l, h):
-    hrad = h / 360 * _math.pi * 2
-    bounds = _get_bounds(l)
-    _hx_min = 1.7976931348623157e+308
-    _g = 0
-    while _g < len(bounds):
-        bound = bounds[_g]
-        _g = (_g + 1)
-        length = _length_of_ray_until_intersect(hrad, bound)
-        if length >= 0:
-            if _math.isnan(length):
-                _hx_min = length
-            else:
-                _hx_min = min(_hx_min, length)
-    return _hx_min
+    hrad = math.radians(h)
+    lengths = [_length_of_ray_until_intersect(hrad, bound) for bound in _get_bounds(l)]
+    return min(length for length in lengths if length >= 0)
 
 
 def _dot_product(a, b):
-    _sum = 0
-    _g1 = 0
-    _g = len(a)
-    while _g1 < _g:
-        i = _g1
-        _g1 = _g1 + 1
-        _sum += a[i] * b[i]
-    return _sum
+    return sum(i * j for i, j in zip(a, b))
 
 
 def _from_linear(c):
     if c <= 0.0031308:
         return 12.92 * c
 
-    return 1.055 * _math.pow(c, 5 / 12) - 0.055
+    return 1.055 * math.pow(c, 5 / 12) - 0.055
 
 
 def _to_linear(c):
     if c > 0.04045:
-        return _math.pow((c + 0.055) / 1.055, 2.4)
+        return math.pow((c + 0.055) / 1.055, 2.4)
 
     return c / 12.92
 
@@ -134,14 +105,14 @@ def _y_to_l(y):
     if y <= _epsilon:
         return y / _ref_y * _kappa
 
-    return 116 * _math.pow(y / _ref_y, 1 / 3) - 16
+    return 116 * math.pow(y / _ref_y, 1 / 3) - 16
 
 
 def _l_to_y(l):
     if l <= 8:
         return _ref_y * l / _kappa
 
-    return _ref_y * _math.pow((l + 16) / 116, 3)
+    return _ref_y * (((l + 16) / 116) ** 3)
 
 
 def xyz_to_rgb(_hx_tuple):
@@ -164,18 +135,16 @@ def xyz_to_luv(_hx_tuple):
     x = float(_hx_tuple[0])
     y = float(_hx_tuple[1])
     z = float(_hx_tuple[2])
-    divider = x + 15 * y + 3 * z
-    var_u = 4 * x
-    var_v = 9 * y
-    if divider != 0:
-        var_u = var_u / divider
-        var_v = var_v / divider
-    else:
-        var_u = float("nan")
-        var_v = float("nan")
     l = _y_to_l(y)
     if l == 0:
         return (0, 0, 0)
+    divider = x + 15 * y + 3 * z
+    if divider == 0:
+        u = float("nan")
+        v = float("nan")
+        return (l, u, v)
+    var_u = 4 * x / divider
+    var_v = 9 * y / divider
     u = 13 * l * (var_u - _ref_u)
     v = 13 * l * (var_v - _ref_v)
     return (l, u, v)
@@ -199,18 +168,14 @@ def luv_to_lch(_hx_tuple):
     l = float(_hx_tuple[0])
     u = float(_hx_tuple[1])
     v = float(_hx_tuple[2])
-    _v = (u * u) + (v * v)
-    if _v < 0:
-        c = float("nan")
-    else:
-        c = _math.sqrt(_v)
+    c = math.hypot(u, v)
     if c < 1e-08:
         h = 0
     else:
-        hrad = _math.atan2(v, u)
-        h = hrad * 180.0 / _math.pi
+        hrad = math.atan2(v, u)
+        h = math.degrees(hrad)
         if h < 0:
-            h = 360 + h
+            h += 360
     return (l, c, h)
 
 
@@ -218,9 +183,9 @@ def lch_to_luv(_hx_tuple):
     l = float(_hx_tuple[0])
     c = float(_hx_tuple[1])
     h = float(_hx_tuple[2])
-    hrad = h / 360.0 * 2 * _math.pi
-    u = _math.cos(hrad) * c
-    v = _math.sin(hrad) * c
+    hrad = math.radians(h)
+    u = math.cos(hrad) * c
+    v = math.sin(hrad) * c
     return (l, u, v)
 
 
@@ -277,36 +242,18 @@ def lch_to_hpluv(_hx_tuple):
 
 
 def rgb_to_hex(_hx_tuple):
-    h = "#"
-    _g = 0
-    while _g < 3:
-        i = _g
-        _g = _g + 1
-        chan = float(_hx_tuple[i])
-        c = _math.floor(chan * 255 + 0.5)
-        digit2 = int(c % 16)
-        digit1 = int((c - digit2) / 16)
-
-        h += _hex_chars[digit1] + _hex_chars[digit2]
-    return h
+    return '#{:02X}{:02X}{:02X}'.format(
+            math.floor(_hx_tuple[0] * 255 + 0.5),
+            math.floor(_hx_tuple[1] * 255 + 0.5),
+            math.floor(_hx_tuple[2] * 255 + 0.5))
 
 
 def hex_to_rgb(_hex):
-    _hex = _hex.lower()
-    ret = []
-    _g = 0
-    while _g < 3:
-        i = _g
-        _g = _g + 1
-        index = i * 2 + 1
-        _hx_str = _hex[index]
-        digit1 = _hex_chars.find(_hx_str)
-        index1 = i * 2 + 2
-        str1 = _hex[index1]
-        digit2 = _hex_chars.find(str1)
-        n = digit1 * 16 + digit2
-        ret.append(n / 255.0)
-    return tuple(ret)
+    # skip leading '#'
+    r = int(_hex[1:3], base=16) / 255.0
+    g = int(_hex[3:5], base=16) / 255.0
+    b = int(_hex[5:7], base=16) / 255.0
+    return (r, g, b)
 
 
 def lch_to_rgb(_hx_tuple):
@@ -354,5 +301,3 @@ def hex_to_hsluv(s):
 def hex_to_hpluv(s):
     return rgb_to_hpluv(hex_to_rgb(s))
 
-
-del division  # unexport
