@@ -303,3 +303,5 @@ def hex_to_hsluv(s):
 def hex_to_hpluv(s):
     return rgb_to_hpluv(hex_to_rgb(s))
 
+
+del division  # unexport
