@@ -245,9 +245,9 @@ def lch_to_hpluv(_hx_tuple):
 
 def rgb_to_hex(_hx_tuple):
     return '#{:02x}{:02x}{:02x}'.format(
-            _math.floor(_hx_tuple[0] * 255 + 0.5),
-            _math.floor(_hx_tuple[1] * 255 + 0.5),
-            _math.floor(_hx_tuple[2] * 255 + 0.5))
+            int(_math.floor(_hx_tuple[0] * 255 + 0.5)),
+            int(_math.floor(_hx_tuple[1] * 255 + 0.5)),
+            int(_math.floor(_hx_tuple[2] * 255 + 0.5)))
 
 
 def hex_to_rgb(_hex):
