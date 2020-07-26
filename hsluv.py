@@ -6,8 +6,8 @@ yourself, clone https://github.com/hsluv/hsluv and run:
 """
 
 from __future__ import division
-from functools import wraps as _wraps, partial as _partial
-import math as _math
+from functools import wraps as _wraps, partial as _partial  # unexport, see #17
+import math as _math  # unexport, see #17
 
 
 __version__ = '5.0.0'
@@ -355,4 +355,4 @@ def hex_to_hpluv(s):
     return rgb_to_hpluv(hex_to_rgb(s))
 
 
-del division  # unexport
+del division  # unexport, see #17
