@@ -5,8 +5,9 @@ yourself, clone https://github.com/hsluv/hsluv and run:
     haxe -cp haxe/src hsluv.Hsluv -python hsluv.py
 """
 
-from functools import wraps, partial
-import math
+from __future__ import division
+from functools import wraps as _wraps, partial as _partial
+import math as _math
 
 
 __version__ = '5.0.0'
@@ -17,19 +18,18 @@ _m = [[3.240969941904521, -1.537383177570093, -0.498610760293],
 _min_v = [[0.41239079926595, 0.35758433938387, 0.18048078840183],
           [0.21263900587151, 0.71516867876775, 0.072192315360733],
           [0.019330818715591, 0.11919477979462, 0.95053215224966]]
-# CIE1931 D65 white point
 _ref_y = 1.0
-_ref_u = 0.19782944951777845
-_ref_v = 0.46833216824138596
-_kappa = 24389/27
-_epsilon = 216/24389
+_ref_u = 0.19783000664283
+_ref_v = 0.46831999493879
+_kappa = 903.2962962
+_epsilon = 0.0088564516
 
 
 def _normalize_output(conversion):
     # as in snapshot rev 4, the tolerance should be 1e-11
-    normalize = partial(round, ndigits=11-1)
+    normalize = _partial(round, ndigits=11-1)
 
-    @wraps(conversion)
+    @_wraps(conversion)
     def normalized(*args, **kwargs):
         color = conversion(*args, **kwargs)
         return tuple(normalize(c) for c in color)
@@ -38,17 +38,17 @@ def _normalize_output(conversion):
 
 def _distance_line_from_origin(line):
     v = line['slope'] ** 2 + 1
-    return abs(line['intercept']) / math.sqrt(v)
+    return abs(line['intercept']) / _math.sqrt(v)
 
 
 def _length_of_ray_until_intersect(theta, line):
     return line['intercept']\
-         / (math.sin(theta) - line['slope'] * math.cos(theta))
+         / (_math.sin(theta) - line['slope'] * _math.cos(theta))
 
 
 def _get_bounds(l):
     result = []
-    sub1 = ((l + 16) / 116) ** 3
+    sub1 = ((l + 16) ** 3) / 1560896
     if sub1 > _epsilon:
         sub2 = sub1
     else:
@@ -78,7 +78,7 @@ def _max_safe_chroma_for_l(l):
 
 
 def _max_chroma_for_lh(l, h):
-    hrad = math.radians(h)
+    hrad = _math.radians(h)
     lengths = [_length_of_ray_until_intersect(hrad, bound) for bound in _get_bounds(l)]
     return min(length for length in lengths if length >= 0)
 
@@ -91,12 +91,12 @@ def _from_linear(c):
     if c <= 0.0031308:
         return 12.92 * c
 
-    return 1.055 * math.pow(c, 5 / 12) - 0.055
+    return 1.055 * _math.pow(c, 5 / 12) - 0.055
 
 
 def _to_linear(c):
     if c > 0.04045:
-        return math.pow((c + 0.055) / 1.055, 2.4)
+        return _math.pow((c + 0.055) / 1.055, 2.4)
 
     return c / 12.92
 
@@ -105,7 +105,7 @@ def _y_to_l(y):
     if y <= _epsilon:
         return y / _ref_y * _kappa
 
-    return 116 * math.pow(y / _ref_y, 1 / 3) - 16
+    return 116 * _math.pow(y / _ref_y, 1 / 3) - 16
 
 
 def _l_to_y(l):
@@ -135,16 +135,18 @@ def xyz_to_luv(_hx_tuple):
     x = float(_hx_tuple[0])
     y = float(_hx_tuple[1])
     z = float(_hx_tuple[2])
+    divider = x + 15 * y + 3 * z
+    var_u = 4 * x
+    var_v = 9 * y
+    if divider != 0:
+        var_u = var_u / divider
+        var_v = var_v / divider
+    else:
+        var_u = float("nan")
+        var_v = float("nan")
     l = _y_to_l(y)
     if l == 0:
         return (0, 0, 0)
-    divider = x + 15 * y + 3 * z
-    if divider == 0:
-        u = float("nan")
-        v = float("nan")
-        return (l, u, v)
-    var_u = 4 * x / divider
-    var_v = 9 * y / divider
     u = 13 * l * (var_u - _ref_u)
     v = 13 * l * (var_v - _ref_v)
     return (l, u, v)
@@ -168,12 +170,12 @@ def luv_to_lch(_hx_tuple):
     l = float(_hx_tuple[0])
     u = float(_hx_tuple[1])
     v = float(_hx_tuple[2])
-    c = math.hypot(u, v)
+    c = _math.hypot(u, v)
     if c < 1e-08:
         h = 0
     else:
-        hrad = math.atan2(v, u)
-        h = math.degrees(hrad)
+        hrad = _math.atan2(v, u)
+        h = _math.degrees(hrad)
         if h < 0:
             h += 360
     return (l, c, h)
@@ -183,9 +185,9 @@ def lch_to_luv(_hx_tuple):
     l = float(_hx_tuple[0])
     c = float(_hx_tuple[1])
     h = float(_hx_tuple[2])
-    hrad = math.radians(h)
-    u = math.cos(hrad) * c
-    v = math.sin(hrad) * c
+    hrad = _math.radians(h)
+    u = _math.cos(hrad) * c
+    v = _math.sin(hrad) * c
     return (l, u, v)
 
 
@@ -242,10 +244,10 @@ def lch_to_hpluv(_hx_tuple):
 
 
 def rgb_to_hex(_hx_tuple):
-    return '#{:02X}{:02X}{:02X}'.format(
-            math.floor(_hx_tuple[0] * 255 + 0.5),
-            math.floor(_hx_tuple[1] * 255 + 0.5),
-            math.floor(_hx_tuple[2] * 255 + 0.5))
+    return '#{:02x}{:02x}{:02x}'.format(
+            _math.floor(_hx_tuple[0] * 255 + 0.5),
+            _math.floor(_hx_tuple[1] * 255 + 0.5),
+            _math.floor(_hx_tuple[2] * 255 + 0.5))
 
 
 def hex_to_rgb(_hex):
