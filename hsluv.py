@@ -135,18 +135,15 @@ def xyz_to_luv(_hx_tuple):
     x = float(_hx_tuple[0])
     y = float(_hx_tuple[1])
     z = float(_hx_tuple[2])
-    divider = x + 15 * y + 3 * z
-    var_u = 4 * x
-    var_v = 9 * y
-    if divider != 0:
-        var_u = var_u / divider
-        var_v = var_v / divider
-    else:
-        var_u = float("nan")
-        var_v = float("nan")
     l = _y_to_l(y)
     if l == 0:
         return (0, 0, 0)
+    divider = x + 15 * y + 3 * z
+    if divider == 0:
+        u = v = float("nan")
+        return (l, u, v)
+    var_u = 4 * x / divider
+    var_v = 9 * y / divider
     u = 13 * l * (var_u - _ref_u)
     v = 13 * l * (var_v - _ref_v)
     return (l, u, v)
@@ -161,8 +158,8 @@ def luv_to_xyz(_hx_tuple):
     var_u = u / (13 * l) + _ref_u
     var_v = v / (13 * l) + _ref_v
     y = _l_to_y(l)
-    x = 0 - ((9 * y * var_u) / (((var_u - 4) * var_v) - var_u * var_v))
-    z = (((9 * y) - (15 * var_v * y)) - (var_v * x)) / (3 * var_v)
+    x = y * 9 * var_u / (4 * var_v)
+    z = y * (12 - 3 * var_u - 20 * var_v) / (4 * var_v)
     return (x, y, z)
 
 
