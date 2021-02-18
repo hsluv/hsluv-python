@@ -10,7 +10,7 @@ rgb_range_tolerance = 1e-11
 snapshot_tolerance = 1e-11
 
 
-class TestHusl(unittest.TestCase):
+class TestHsluv(unittest.TestCase):
     def setUp(self):
         # Load snapshot into memory
         name = os.path.join(os.path.dirname(__file__), 'snapshot-rev4.json')

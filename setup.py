@@ -26,5 +26,5 @@ setup(
         'setuptools>=38.6.0',  # for long_description_content_type
     ],
     py_modules=["hsluv"],
-    test_suite="tests.hsluv_test"
+    test_suite="tests.test_hsluv"
 )

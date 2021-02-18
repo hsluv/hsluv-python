@@ -2,6 +2,7 @@
 *.pyo
 *.egg-info
 /venv
+/build
 /dist
 # IntelliJ IDEA / PyCharm
 /.idea
