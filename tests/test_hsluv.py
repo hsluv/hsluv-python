@@ -3,7 +3,11 @@ import json
 import os.path
 
 
-from hsluv import *
+from hsluv import (hex_to_hpluv, hex_to_hsluv, hex_to_rgb, hpluv_to_hex,
+                   hpluv_to_lch, hpluv_to_rgb, hsluv_to_hex, hsluv_to_lch,
+                   hsluv_to_rgb, lch_to_hpluv, lch_to_hsluv, lch_to_luv,
+                   luv_to_lch, luv_to_xyz, rgb_to_hex, rgb_to_xyz,
+                   xyz_to_luv, xyz_to_rgb)
 from hsluv import (_hsluv_to_rgb, _hpluv_to_rgb)  # no normalized output
 
 rgb_range_tolerance = 1e-11
