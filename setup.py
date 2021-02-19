@@ -22,6 +22,7 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3"
     ],
+    python_requires='>=3.6',
     setup_requires=[
         'setuptools>=38.6.0',  # for long_description_content_type
     ],
