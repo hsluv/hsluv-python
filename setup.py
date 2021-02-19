@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python3
 from setuptools import setup
 
 from hsluv import __version__
