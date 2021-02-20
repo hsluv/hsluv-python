@@ -73,7 +73,7 @@ class TestHsluv(unittest.TestCase):
     def assert_tuples_close(self, tup1, tup2):
         for a, b in zip(tup1, tup2):
             if abs(a - b) > snapshot_tolerance:
-                raise Exception("Mismatch: {} {}".format(a, b))
+                raise Exception(f"Mismatch: {a} {b}")
 
 
 if __name__ == '__main__':
