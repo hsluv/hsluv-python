@@ -7,6 +7,8 @@ A Python implementation of [HSLuv](https://www.hsluv.org) (revision 4).
 
 `pip install hsluv`
 
+Python 2 users: `pip install hsluv==5.0.0`
+
 ## Usage
 
 > This library does not hide (clamp) floating point error, e.g. you might receive a value outside
