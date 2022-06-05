@@ -1,0 +1,32 @@
+# Copyright (c) 2022 Sebastian Pipping <sebastian@pipping.org>
+# Licensed under the MIT license, see file LICENSE.txt
+
+name: Run the Test Suite
+
+on:
+- pull_request
+- push
+
+jobs:
+  run_test_suite:
+    strategy:
+      matrix:
+        python-version: [3.7, '3.10']  # no current need for in-between versions
+    name: Run the Test Suite
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run the Test Suite
+        run: |-
+          set -x
+          python setup.py sdist
+          cd dist/
+          tar xf hsluv-*.tar.gz
+          cd hsluv-*/
+          python setup.py test
