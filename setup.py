@@ -31,5 +31,9 @@ setup(
         'setuptools>=38.6.0',  # for long_description_content_type
     ],
     py_modules=["hsluv"],
-    test_suite="tests.test_hsluv"
+    test_suite="tests.test_hsluv",
+    project_urls={
+        "Bug Tracker": "https://github.com/hsluv/hsluv-python/issues",
+        "Source Code": "https://github.com/hsluv/hsluv-python",
+    }
 )
