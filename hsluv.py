@@ -5,11 +5,10 @@ yourself, clone https://github.com/hsluv/hsluv and run:
     haxe -cp haxe/src hsluv.Hsluv -python hsluv.py
 """
 
+__version__ = '5.0.3'
+
 from functools import wraps as _wraps, partial as _partial  # unexport, see #17
 import math as _math  # unexport, see #17
-
-
-__version__ = '5.0.3'
 
 _m = [[3.240969941904521, -1.537383177570093, -0.498610760293],
       [-0.96924363628087, 1.87596750150772, 0.041555057407175],
