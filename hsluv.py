@@ -10,17 +10,19 @@ __version__ = '5.0.3'
 from functools import wraps as _wraps, partial as _partial  # unexport, see #17
 import math as _math  # unexport, see #17
 
+# XYZ-to-sRGB matrix
 _m = [[3.240969941904521, -1.537383177570093, -0.498610760293],
       [-0.96924363628087, 1.87596750150772, 0.041555057407175],
       [0.055630079696993, -0.20397695888897, 1.056971514242878]]
-_min_v = [[0.41239079926595, 0.35758433938387, 0.18048078840183],
+# sRGB-to-XYZ matrix
+_m_inv = [[0.41239079926595, 0.35758433938387, 0.18048078840183],
           [0.21263900587151, 0.71516867876775, 0.072192315360733],
           [0.019330818715591, 0.11919477979462, 0.95053215224966]]
 _ref_y = 1.0
 _ref_u = 0.19783000664283
 _ref_v = 0.46831999493879
-_kappa = 903.2962962
-_epsilon = 0.0088564516
+_kappa = 903.2962962 # 24389/27 == (29/3)**3
+_epsilon = 0.0088564516 # 216/24389 == (6/29)**3
 
 
 def _normalize_output(conversion):
@@ -124,9 +126,9 @@ def rgb_to_xyz(_hx_tuple):
     rgbl = (_to_linear(_hx_tuple[0]),
             _to_linear(_hx_tuple[1]),
             _to_linear(_hx_tuple[2]))
-    return (_dot_product(_min_v[0], rgbl),
-            _dot_product(_min_v[1], rgbl),
-            _dot_product(_min_v[2], rgbl))
+    return (_dot_product(_m_inv[0], rgbl),
+            _dot_product(_m_inv[1], rgbl),
+            _dot_product(_m_inv[2], rgbl))
 
 
 def xyz_to_luv(_hx_tuple):
