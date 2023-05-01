@@ -11,7 +11,7 @@ jobs:
   run_test_suite:
     strategy:
       matrix:
-        python-version: [3.7, '3.10']  # no current need for in-between versions
+        python-version: [3.7, 3.11]  # no current need for in-between versions
     name: Run the Test Suite
     runs-on: ubuntu-20.04
     steps:
