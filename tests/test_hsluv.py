@@ -11,7 +11,8 @@ from hsluv import (hex_to_hpluv, hex_to_hsluv, hex_to_rgb, hpluv_to_hex,
 from hsluv import (_hsluv_to_rgb, _hpluv_to_rgb)  # no normalized output
 
 rgb_range_tolerance = 1e-11
-snapshot_tolerance = 1e-11
+# Note: we had 1e-11 precision before, but lowered it for FreeBSD: https://github.com/hsluv/hsluv/issues/87
+snapshot_tolerance = 1e-10
 
 
 class TestHsluv(unittest.TestCase):
