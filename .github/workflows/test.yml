@@ -26,8 +26,9 @@ jobs:
         run: |-
           set -x
           pip install -U setuptools  # for Python >=3.12
+          pip install pytest
           python setup.py sdist
           cd dist/
           tar xf hsluv-*.tar.gz
           cd hsluv-*/
-          python setup.py test
+          pytest -v tests/
