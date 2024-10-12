@@ -4,8 +4,11 @@
 name: Run the Test Suite
 
 on:
-- pull_request
-- push
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 16 * * 5'  # Every Friday 4pm
+  workflow_dispatch:
 
 jobs:
   run_test_suite:
