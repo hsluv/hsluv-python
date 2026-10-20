@@ -1,5 +1,6 @@
 [![Build Status](https://github.com/hsluv/hsluv-python/actions/workflows/test.yml/badge.svg)](https://github.com/hsluv/hsluv-python/actions/workflows/test.yml)
 [![Package Version](https://img.shields.io/pypi/v/hsluv.svg)](https://pypi.python.org/pypi/hsluv/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/hsluv.svg)](https://pypistats.org/packages/hsluv)
 
 A Python implementation of [HSLuv](https://www.hsluv.org) (revision 4).
 
