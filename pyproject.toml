@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.txt"]
 authors = [
-    {name = "Robert McGinley"},
+    {name = "Robert McGinley", email = "mcginleyr1@gmail.com"},
     {name = "Alexei Boronine", email = "alexei@boronine.com"},
 ]
 requires-python = ">=3.11"
