@@ -40,6 +40,10 @@ For HPLuv (the pastel variant), use `hpluv_to_hex`, `hpluv_to_rgb`, `hex_to_hplu
 
 Run `python -m unittest discover -v`.
 
+## Repository maintenance
+
+See [BRANCH_MIGRATION.md](BRANCH_MIGRATION.md) for the planned default-branch rename to `main`.
+
 ## Authors
 
 * Robert McGinley ([mcginleyr1](https://github.com/mcginleyr1))
