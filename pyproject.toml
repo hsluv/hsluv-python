@@ -12,6 +12,7 @@ license-files = ["LICENSE.txt"]
 authors = [
     {name = "Robert McGinley", email = "mcginleyr1@gmail.com"},
     {name = "Alexei Boronine", email = "alexei@boronine.com"},
+    {name = "Sebastian Pipping", email = "sebastian@pipping.org"},
 ]
 requires-python = ">=3.11"
 keywords = ["color", "hsl", "cie", "cieluv", "colorwheel", "hsluv", "hpluv"]

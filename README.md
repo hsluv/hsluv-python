@@ -44,3 +44,4 @@ Run `python -m unittest discover -v`.
 
 * Robert McGinley ([mcginleyr1](https://github.com/mcginleyr1))
 * Alexei Boronine ([boronine](https://github.com/boronine))
+* Sebastian Pipping ([hartwork](https://github.com/hartwork))
