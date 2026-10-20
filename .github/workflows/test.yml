@@ -28,10 +28,14 @@ jobs:
       - name: Run the Test Suite
         run: |-
           set -x
-          pip install -U setuptools  # for Python >=3.12
-          pip install pytest
-          python setup.py sdist
+          python -m pip install build pytest
+          python -m build
           cd dist/
           tar xf hsluv-*.tar.gz
           cd hsluv-*/
+          python -m pip install .
           pytest -v tests/
+          cd ..
+          python -m pip install --force-reinstall hsluv-*.whl
+          python -c 'import hsluv; from importlib.metadata import version; assert hsluv.__version__ == version("hsluv")'
+          python -m unittest discover -s hsluv-*/tests -v

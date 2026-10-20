@@ -37,10 +37,9 @@ For HPLuv (the pastel variant), use `hpluv_to_hex`, `hpluv_to_rgb`, `hex_to_hplu
 
 ## Testing
 
-Run `python setup.py test`.
+Run `python -m unittest discover -v`.
 
 ## Authors
 
 * Robert McGinley ([mcginleyr1](https://github.com/mcginleyr1))
 * Alexei Boronine ([boronine](https://github.com/boronine))
-
