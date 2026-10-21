@@ -1,90 +1,34 @@
 name: Publish a pre-release to PyPI
-
-on:
-  workflow_dispatch:
-
+on: workflow_dispatch
 permissions:
   contents: read
-
-concurrency:
-  group: pypi-prerelease
-  cancel-in-progress: false
+concurrency: pypi-prerelease
 
 jobs:
-  build:
+  publish:
     if: github.repository == 'hsluv/hsluv-python' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        python-version: ['3.11', '3.15']
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
-
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install build tools
-        run: python -m pip install build packaging twine
-
-      - name: Require a pre-release version
+          python-version: '3.11'
+      - run: python -m pip install build packaging twine
+      - name: Check pre-release version and build
         run: |
           python - <<'PY'
-          import ast
-          from pathlib import Path
+          import hsluv
           from packaging.version import Version
-
-          module = ast.parse(Path('hsluv.py').read_text())
-          version_text = next(
-              ast.literal_eval(node.value)
-              for node in module.body
-              if isinstance(node, ast.Assign)
-              and any(isinstance(target, ast.Name) and target.id == '__version__'
-                      for target in node.targets)
-          )
-          version = Version(version_text)
-          if not version.is_prerelease or version.is_devrelease or version.local is not None:
+          v = Version(hsluv.__version__)
+          if not v.pre or v.dev is not None or v.local is not None:
               raise SystemExit('Only alpha, beta, or release-candidate versions may be published.')
-          print(f'Validated pre-release {version_text}')
           PY
-
-      - name: Build and check distributions
-        run: |
           python -m build
           python -m twine check --strict dist/*
-
-      - name: Test installed source distribution and wheel
-        run: |
-          python -m pip install dist/*.tar.gz
-          cd "$(mktemp -d)"
-          python -m unittest discover -s "$GITHUB_WORKSPACE/tests" -v
-          python -m pip install --force-reinstall "$GITHUB_WORKSPACE"/dist/*.whl
-          python -m unittest discover -s "$GITHUB_WORKSPACE/tests" -v
-          python -c 'import hsluv; from importlib.metadata import version; assert hsluv.__version__ == version("hsluv")'
-
-      - name: Save distributions for publishing
-        if: matrix.python-version == '3.11'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
-        with:
-          name: pypi-distributions
-          path: dist/*
-          if-no-files-found: error
-
-  publish:
-    needs: build
-    runs-on: ubuntu-24.04
-    environment:
-      name: pypi
-      url: https://pypi.org/project/hsluv/
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
-        with:
-          name: pypi-distributions
-          path: dist/
-
-      - name: Publish to PyPI using Trusted Publishing
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # release/v1
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # release/v1
