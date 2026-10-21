@@ -1,8 +1,8 @@
-name: Publish a pre-release to PyPI
+name: Publish to PyPI
 on: workflow_dispatch
 permissions:
   contents: read
-concurrency: pypi-prerelease
+concurrency: pypi-publish
 
 jobs:
   publish:
@@ -19,16 +19,9 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: '3.11'
-      - run: python -m pip install build packaging twine
-      - name: Check pre-release version and build
+      - run: python -m pip install build twine
+      - name: Build and check distributions
         run: |
-          python - <<'PY'
-          import hsluv
-          from packaging.version import Version
-          v = Version(hsluv.__version__)
-          if not v.pre or v.dev is not None or v.local is not None:
-              raise SystemExit('Only alpha, beta, or release-candidate versions may be published.')
-          PY
           python -m build
           python -m twine check --strict dist/*
       - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # release/v1
