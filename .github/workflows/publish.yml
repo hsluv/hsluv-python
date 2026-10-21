@@ -6,7 +6,6 @@ concurrency: pypi-publish
 
 jobs:
   publish:
-    if: github.repository == 'hsluv/hsluv-python' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     environment: pypi
     permissions:
