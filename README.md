@@ -42,23 +42,11 @@ Run `python -m unittest discover -v`.
 
 ## Publishing to PyPI
 
-Configure the GitHub environment and PyPI Trusted Publisher before publishing:
-
-* In `hsluv/hsluv-python` on GitHub, open **Settings → Environments → New environment**.
-* Name the environment **`pypi`** and click **Configure environment**. If it already exists, open it instead.
-* Under **Deployment protection rules**, enable **Required reviewers**, select trusted release reviewers, and save the rules. Only one listed reviewer needs to approve a deployment.
-* Enable **Prevent self-review** if a different person should approve the workflow initiator's deployment. Ensure another reviewer is available before enabling it.
-* Under **Deployment branches and tags**, choose **Selected branches and tags** and add a branch rule for **`main`** to restrict publishing to that branch.
-* If these protection options are unavailable, check GitHub's plan and repository-visibility requirements before relying on approval enforcement.
-* As a PyPI project Owner, open the `hsluv` project's **Manage → Publishing** page and add a GitHub Trusted Publisher with owner **`hsluv`**, repository **`hsluv-python`**, workflow **`publish.yml`**, and environment **`pypi`**. No API token or GitHub secret is needed.
-
-To publish a release:
-
-* Update `__version__` in `hsluv.py` to an unused version, such as `5.0.5rc1` for a pre-release, and merge the change into `main` after tests pass.
-* Open **Actions → Publish to PyPI → Run workflow**, select **`main`**, and click **Run workflow**. This uploads to production PyPI, including for pre-release versions; a tag or GitHub release is not required.
-* If approval is required, have an eligible reviewer open the workflow run, click **Review deployments**, select **`pypi`**, and click **Approve and deploy**.
-* Wait for the workflow to succeed, then verify the version on [PyPI](https://pypi.org/project/hsluv/) and install it with `python -m pip install 'hsluv==5.0.5rc1'` (substitute the version being released).
-* Never reuse a published version: PyPI does not allow replacing uploaded distribution files, even after deletion.
+* On GitHub, open **Settings → Environments** and create or open **`pypi`**. Leave **Required reviewers** disabled; no approval is needed.
+* On PyPI, open the `hsluv` project's **Manage → Publishing** page and configure a GitHub Trusted Publisher: owner **`hsluv`**, repository **`hsluv-python`**, workflow **`publish.yml`**, environment **`pypi`**. No API token or secret is needed.
+* Update `__version__` in `hsluv.py` to an unused version (e.g. `5.0.5rc1` for a pre-release) and merge into `main`.
+* Open **Actions → Publish to PyPI → Run workflow**, select **`main`**, and run it. The workflow requires tests to pass before building and uploading to production PyPI. No tag or GitHub release is needed.
+* Verify the release on [PyPI](https://pypi.org/project/hsluv/). Published versions cannot be reused.
 
 ## Authors
 
