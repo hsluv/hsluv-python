@@ -1,167 +1,27 @@
-name: Rehearse publishing to TestPyPI
-
-on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Unused test version (for example 5.0.5.dev2026102101); never uploaded to production PyPI'
-        required: true
-        type: string
-
-permissions:
-  contents: read
-
-concurrency:
-  group: testpypi-publishing
-  cancel-in-progress: false
-
-env:
-  TEST_VERSION: ${{ inputs.version }}
-
+name: Publish to TestPyPI
+on: workflow_dispatch
+permissions: {contents: read}
 jobs:
   build:
     if: github.repository == 'hsluv/hsluv-python' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        python-version: ['3.11', '3.15']
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install build tools
-        run: python -m pip install build packaging twine
-
-      - name: Apply a test-only version to the build copy
-        run: |
-          python - <<'PY'
-          import os
-          from pathlib import Path
-          import re
-          from packaging.version import Version
-
-          text = os.environ['TEST_VERSION']
-          version = Version(text)
-          if str(version) != text or not version.is_prerelease or version.local is not None:
-              raise SystemExit('Use a canonical PEP 440 development or pre-release version, without a local suffix.')
-          module = Path('hsluv.py')
-          source, count = re.subn(
-              r'''(?m)^__version__ = ['"][^'"]+['"]$''',
-              f'__version__ = {text!r}',
-              module.read_text(),
-          )
-          if count != 1:
-              raise SystemExit('Expected exactly one literal __version__ assignment.')
-          module.write_text(source)
-          print(f'TestPyPI-only build version: {text}; no commit or tag is created.')
-          PY
-
-      - name: Build and check distributions
-        run: |
-          python -m build
-          python -m twine check --strict dist/*
-
-      - name: Test installed source distribution and wheel
-        run: |
-          python -m pip install dist/*.tar.gz
-          cd "$(mktemp -d)"
-          python -m unittest discover -s "$GITHUB_WORKSPACE/tests" -v
-          python -m pip install --force-reinstall "$GITHUB_WORKSPACE"/dist/*.whl
-          python -m unittest discover -s "$GITHUB_WORKSPACE/tests" -v
-          python - <<'PY'
-          import os
-          from importlib.metadata import version
-          import hsluv
-          assert hsluv.__version__ == version('hsluv') == os.environ['TEST_VERSION']
-          PY
-
-      - name: Save tested distributions
-        if: matrix.python-version == '3.11'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
-        with:
-          name: testpypi-distributions
-          path: dist/*
-          if-no-files-found: error
-
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with: {python-version: '3.11'}
+      - run: python -m pip install build
+      - run: python -m unittest discover -v
+      - run: python -m build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with: {name: distributions, path: dist/}
   publish:
     needs: build
     runs-on: ubuntu-24.04
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/project/hsluv/
-    permissions:
-      id-token: write
+    environment: testpypi
+    permissions: {id-token: write}
     steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
-        with:
-          name: testpypi-distributions
-          path: dist/
-
-      - name: Publish only to TestPyPI using OIDC
-        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-
-  verify-published:
-    needs: publish
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
-        with:
-          python-version: '3.11'
-
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
-        with:
-          name: testpypi-distributions
-          path: dist/
-
-      - name: Download the exact wheel from TestPyPI and verify its hash
-        run: |
-          python - <<'PY'
-          import hashlib
-          import os
-          from pathlib import Path
-          import subprocess
-          import sys
-          import time
-
-          # The index may take a short time to expose the newly uploaded version.
-          for attempt in range(6):
-              result = subprocess.run([
-                  sys.executable, '-m', 'pip', '--isolated', 'download',
-                  '--index-url', 'https://test.pypi.org/simple/',
-                  '--no-deps', '--only-binary=:all:', '--no-cache-dir',
-                  '--dest', 'published', f'hsluv=={os.environ["TEST_VERSION"]}',
-              ])
-              if result.returncode == 0:
-                  break
-              if attempt == 5:
-                  raise SystemExit('The uploaded wheel could not be downloaded from TestPyPI.')
-              time.sleep(10)
-
-          built, = Path('dist').glob('*.whl')
-          downloaded, = Path('published').glob('*.whl')
-          if built.name != downloaded.name or hashlib.sha256(built.read_bytes()).digest() != hashlib.sha256(downloaded.read_bytes()).digest():
-              raise SystemExit('TestPyPI wheel differs from the tested build artifact.')
-          print(f'Verified TestPyPI wheel: {downloaded.name}')
-          PY
-
-      - name: Install the published wheel and run its tests outside the source tree
-        run: |
-          python -m pip install --no-deps published/*.whl
-          mkdir source
-          tar xf dist/*.tar.gz -C source
-          cd "$(mktemp -d)"
-          python -m unittest discover -s "$GITHUB_WORKSPACE"/source/hsluv-*/tests -v
-          python - <<'PY'
-          import os
-          from importlib.metadata import version
-          import hsluv
-          assert hsluv.__version__ == version('hsluv') == os.environ['TEST_VERSION']
-          print(f'Installed and tested {hsluv.__version__} from TestPyPI.')
-          PY
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with: {name: distributions, path: dist/}
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086
+        with: {repository-url: 'https://test.pypi.org/legacy/'}

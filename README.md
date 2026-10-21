@@ -40,8 +40,6 @@ For HPLuv (the pastel variant), use `hpluv_to_hex`, `hpluv_to_rgb`, `hex_to_hplu
 
 Run `python -m unittest discover -v`.
 
-To rehearse publishing without affecting production PyPI, see [TESTPYPI.md](https://github.com/hsluv/hsluv-python/blob/main/TESTPYPI.md).
-
 ## Authors
 
 * Robert McGinley ([mcginleyr1](https://github.com/mcginleyr1))
