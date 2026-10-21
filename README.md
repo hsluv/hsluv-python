@@ -44,7 +44,7 @@ Run `python -m unittest discover -v`.
 
 * On PyPI, open the `hsluv` project's **Manage → Publishing** page and configure a GitHub Trusted Publisher: owner **`hsluv`**, repository **`hsluv-python`**, workflow **`publish.yml`**.
 * Update `__version__` in `hsluv.py` to an unused version (e.g. `5.0.5rc1` for a pre-release) and push the commit to the branch you want to publish.
-* Open **Actions → Publish to PyPI → Run workflow**, select that branch, and run it. The workflow requires tests to pass before building and uploading to production PyPI. No tag or GitHub release is needed.
+* Open **Actions → Publish to PyPI → Run workflow**, select that branch, and run it to build and upload to production PyPI. No tag or GitHub release is needed.
 * Verify the release on [PyPI](https://pypi.org/project/hsluv/). Published versions cannot be reused.
 
 ## Authors
